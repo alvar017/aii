@@ -27,11 +27,35 @@ class cadena:
         print("Su solución: " + res)
         return res
 
+#   c) Reemplace todos los dígitos en la cadena por el caracter. Ej: ’su clave es: 1540’ y ’X’ debería
+#      devolver ’su clave es: XXXX’
+    def e1_c(self):
+        translation_table = str.maketrans('0123456789', 'XXXXXXXXXX')
+        print("Inserte cadena \n")
+        cadena = input();
+        res = cadena.translate(translation_table)
+        print(res)
+        return res
+
+#   d) Inserte el caracter cada 3 dígitos en la cadena. Ej. ’2552552550’ y ’.’ debería devolver ’255.255.255.0’
+    def e1_d(self):
+        print("Inserte cadena \n")
+        cadena = input();
+        res = ""
+        i = 0;
+        while i < len(cadena) - 1:
+            if
+            res = res + cadena[i] + cadena
+            i = i + 1
+
 if __name__ == '__main__':
     cadena = cadena()
+#   EJERCICIO 1 CADENA DE CARACTERES
 #    cadena.e1_a()
 #    cadena.e1_b()
+#    cadena.e1_c()
 
+#   EJERCICIO 2 TUPLAS Y LISTAS
 
 
 
