@@ -40,13 +40,43 @@ class cadena:
 #   d) Inserte el caracter cada 3 dígitos en la cadena. Ej. ’2552552550’ y ’.’ debería devolver ’255.255.255.0’
     def e1_d(self):
         print("Inserte cadena \n")
-        cadena = input();
+        cadena = input()
         res = ""
-        i = 0;
-        while i < len(cadena) - 1:
-            if
-            res = res + cadena[i] + cadena
+        i = 0
+        while i < len(cadena):
+            res = res + cadena[i]
+            if (i+1) % 3 == 0 and i != 0:
+                res = res + "."
             i = i + 1
+        print("Su solución es: " + res)
+        return res
+
+class lista:
+#   Ejercicio 1. Campaña electoral
+
+#   a) Escribir una función que reciba una tupla con nombres, y para cada nombre imprima el mensaje Estimado
+#      < nombre >, vote por mí.
+    def e2_a(self, tupla):
+        for e in tupla:
+            print("Estimado/a", e, ", vote por mí.")
+
+#   b) Escribir una función que reciba una tupla con nombres, una posición de origen py una
+#      cantidad n, e imprima el mensaje anterior para los n nombres que se encuentran a partir de la
+#      posición p.
+    def e2_b(self, tupla, posicion_o, cantidad):
+#        i = 1
+#        for e in tupla:
+#            if posicion_o <= tupla.index(e) and i <= cantidad:
+#                print(e)
+#                i = i + 1
+        t1 = tupla[posicion_o:posicion_o + cantidad]
+        self.e2_a(t1)
+
+#   c) Modificar las funciones anteriores para que tengan en cuenta el género del destinatario,
+#      para ello, deberán recibir una tupla de tuplas, conteniendo el nombre y el género.
+    def e2_c(self, tupla):
+        for e in tupla:
+            print("Estimado " if e[1] == "h" else "Estimada ", e[0], ", vote por mí.")
 
 if __name__ == '__main__':
     cadena = cadena()
@@ -54,8 +84,14 @@ if __name__ == '__main__':
 #    cadena.e1_a()
 #    cadena.e1_b()
 #    cadena.e1_c()
+#    cadena.e1_d()
 
 #   EJERCICIO 2 TUPLAS Y LISTAS
+    lista = lista()
+#    lista.e2_a(('Luis', 'Marta', 'Paula'))
+#    lista.e2_b(('Luis', 'Marta', 'Paula'), 1, 2)
+#    lista.e2_c((('Luis', 'h'), ('Marta', 'm'), ('Paula', 'm')))
+
 
 
 
