@@ -1,4 +1,4 @@
-class cadena:
+class Cadena:
     # Ejercicio 1. Escribir funciones que dada una cadena y un caracter:
 
     # a) Inserte el caracter entre cada letra de la cadena.
@@ -51,7 +51,8 @@ class cadena:
         print("Su solución es: " + res)
         return res
 
-class lista:
+
+class Lista:
 #   Ejercicio 1. Campaña electoral
 
 #   a) Escribir una función que reciba una tupla con nombres, y para cada nombre imprima el mensaje Estimado
@@ -78,8 +79,84 @@ class lista:
         for e in tupla:
             print("Estimado " if e[1] == "h" else "Estimada ", e[0], ", vote por mí.")
 
+#   Ejercicio 2.
+#       Escribir una función que reciba una lista de tuplas (Apellido, Nombre, Inicial, segundo_nombre)
+#       y devuelva una lista de cadenas donde cada una contenga primero el nombre, luego la inicial con
+#       un punto, y luego el apellido.
+    def e2_a_bis(self, tuplas):
+        for e in tuplas:
+            print(e[1], e[3], e[2] + ".", e[0])
+
+
+class Busqueda:
+#   Ejercicio 1. Agenda simplificada
+#       Escribir una función que reciba una cadena a buscar y una lista de tuplas (nombre_completo,
+#       telefono), y busque dentro de la lista, todas las entradas que contengan en el nombre
+#       completo la cadena recibida (puede ser el nombre, el apellido o sólo una parte de cualquiera
+#       de ellos). Debe devolver una lista con todas las tuplas encontradas.
+
+    def e1(self, cadena, tuplas):
+        for t in tuplas:
+            if cadena in t[0]:
+                print('Nombre:', t[0] + ', teléfono:', t[1])
+
+
+class Diccionario:
+#   Ejercicio 1. Continuación de la agenda.
+#       Escribir un programa que vaya solicitando al usuario que ingrese nombres.
+#           a) Si el nombre se encuentra en la agenda (implementada con un diccionario), debe mostrar el teléfono y, opcionalmente,
+#              permitir modificarlo si no es correcto.
+#           b) Si el nombre no se encuentra, debe permitir ingresar el teléfono correspondiente.
+#       El usuario puede utilizar la cadena "*", para salir del programa.
+    def e1(self, diccionario):
+        while True:
+            print("Introduzca nombre: ")
+            cadena = input()
+            if cadena == '*':
+                break
+            if cadena in diccionario:
+                print('Teléfono: ', diccionario[cadena])
+                respuesta = input('¿Es correcto (s/n)')
+                if respuesta == 'n':
+                    numero = input('Introduzca nuevo número: ')
+                    diccionario[cadena] = numero
+            else:
+                numero = input('Introduzca un número para '+ cadena + ": ")
+                diccionario[cadena] = numero
+
+
+#    Ejercicio 1. Botella y Sacacorchos
+#       a) Escribir una clase Corcho, que contenga un atributo bodega(cadena con el nombre de la bodega).
+class Corcho:
+    def __init__(self, nombre):
+        self.bodega = nombre
+
+
+#       b) Escribir una clase Botella que contenga un atributo corcho con una referencia al corcho que la tapa, o None
+#          si está destapada.
+class Botella:
+    def __init__(self, corcho):
+        self.corcho = corcho
+
+
+#       c) Escribir una clase Sacacorchos que tenga un método destapar que le reciba una botella, le saque el corcho y
+#          se guarde una referencia al corcho sacado.
+#       d) Agregar un método limpiar, que saque el corcho del sacacorchos.
+class Sacacorchos:
+    def __init__(self):
+        self.corcho = None
+
+    def c(self, botella):
+        print("Descorchar")
+        self.corcho = botella.corcho
+        botella.corcho = None
+
+    def d(self, sacacorchos):
+        sacacorchos.corcho = None
+
+
 if __name__ == '__main__':
-    cadena = cadena()
+    cadena = Cadena()
 #   EJERCICIO 1 CADENA DE CARACTERES
 #    cadena.e1_a()
 #    cadena.e1_b()
@@ -87,10 +164,41 @@ if __name__ == '__main__':
 #    cadena.e1_d()
 
 #   EJERCICIO 2 TUPLAS Y LISTAS
-    lista = lista()
+    lista = Lista()
 #    lista.e2_a(('Luis', 'Marta', 'Paula'))
 #    lista.e2_b(('Luis', 'Marta', 'Paula'), 1, 2)
 #    lista.e2_c((('Luis', 'h'), ('Marta', 'm'), ('Paula', 'm')))
+#    lista.e2_a_bis((('de la Flor Bonilla', 'Álvaro', 'Á', 'Pilo'), ('de la Flor Bonilla', 'Carlos', 'CJ', 'Javier'), ('de la Flor Bonilla', 'Patricia', 'P', 'Lucía')))
+
+#   EJERCICIO 3 BÚSQUEDA
+    busqueda = Busqueda()
+#    busqueda.e1('García', (('Jorge García', '12345'), ('Luisa Montero', '54321'), ('Inés Roca Díaz', '67890')))
+
+#   EJERCICIO 4 DICCIONARIO
+    diccionario = Diccionario()
+#    diccionario.e1(({'Jorge': '12345', 'Luisa': '54321', 'Marta': '67890'}))
+
+#   EJERCICIO 5 OBJETOS
+    # Creo un corcho
+#    corcho = Corcho('Bodega de la Flor')
+#    print(corcho.bodega)
+
+    # Creo una botella y le asigno el corcho anterior
+#    botella = Botella(corcho)
+#    print(botella.corcho.bodega)
+
+    # Creo un sacacorchos y compruebo que no tiene ningún corcho actualmente
+#    sacacorchos = Sacacorchos()
+#    print('Corcho: ', sacacorchos.corcho)
+
+    # Descorcho la botella (compruebo que la botella se queda descorchada) y compruebo que el corcho se queda en el sacacorchos
+#    sacacorchos.c(botella)
+#    print('Corcho después de descorchar:', botella.corcho)
+#    print('Corcho en sacacorchos antes de limpiar:', sacacorchos.corcho.bodega)
+
+    # Limpio el sacacorchos y compruebo que se queda vacío
+#    sacacorchos.d(sacacorchos)
+#    print('Corcho en sacacorchos después de limpiar:', sacacorchos.corcho)
 
 
 
