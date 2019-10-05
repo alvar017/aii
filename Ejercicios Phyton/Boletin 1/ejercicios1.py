@@ -155,6 +155,53 @@ class Sacacorchos:
         sacacorchos.corcho = None
 
 
+#   Herencia y polimorfirmos
+#       Ejercicio 1. Juego de Rol
+#           a) Escribir una clase Personaje que contenga los atributos vida, posicion y velocidad, y los
+#              métodos recibir_ataque, que reduzca la vida según una cantidad recibida y lance un mensaje si
+#              la vida pasa a ser menor o igual que cero, y mover que reciba una dirección y se mueva en esa
+#              dirección la cantidad indicada por velocidad.
+class Personaje:
+    def __init__(self, vida, posicion, velocidad):
+        self.vida = vida
+        self.posicion = posicion
+        self.velocidad = velocidad
+
+    def recibir_ataque(self, cantidad):
+        self.vida = self.vida - cantidad
+        if self.vida <= 0:
+            print("WASTED")
+        else:
+            print('Te queda', self.vida, 'vida')
+
+    def mover(self, direccion):
+        self.posicion[direccion] = self.posicion[direccion] + self.velocidad
+        print('Su nueva posición es:', self.posicion)
+
+
+#           b) Escribir una clase Soldado que herede de Personaje, y agregue el atributo ataque y el
+#              método atacar, que reciba otro personaje, al que le debe hacer el daño indicado por el
+#              atributo ataque.
+class Soldado(Personaje):
+    def __init__(self, personaje, ataque):
+        self.personaje = personaje
+        self.ataque = ataque
+
+    def atacar(self, soldado):
+        soldado.personaje.vida = soldado.personaje.recibir_ataque(self.ataque)
+
+
+#           c) Escribir una clase Campesino que herede de Personaje, y agregue el atributo cosecha y el
+#              método cosechar, que devuelva la cantidad cosechada.
+class Campesino(Personaje):
+    def __init__(self, personaje, cosecha):
+        self.personaje = personaje
+        self.cosecha = cosecha
+
+    def cosechar(self):
+        print('La cosecha es de:', self.cosecha)
+        return self.cosecha
+
 if __name__ == '__main__':
     cadena = Cadena()
 #   EJERCICIO 1 CADENA DE CARACTERES
@@ -199,6 +246,38 @@ if __name__ == '__main__':
     # Limpio el sacacorchos y compruebo que se queda vacío
 #    sacacorchos.d(sacacorchos)
 #    print('Corcho en sacacorchos después de limpiar:', sacacorchos.corcho)
+
+#   EJERCICIO 6 HERENCIA Y POLIMORFISMO
+#       Apartado a)
+#    personaje1 = Personaje(100, {"Norte": 0, "Sur": 0, "Este": 0, "Oeste": 0}, 10)
+#    personaje2 = Personaje(100, {"Norte": 0, "Sur": 0, "Este": 0, "Oeste": 0}, 10)
+#    personaje1.recibir_ataque(5)
+#    personaje2.recibir_ataque(101)
+
+#    personaje1.mover('Norte')
+#    personaje1.mover('Norte')
+#    personaje1.mover('Oeste')
+
+#       Apartado b)
+#    personaje_atacado = Personaje(100, {"Norte": 0, "Sur": 0, "Este": 0, "Oeste": 0}, 10)
+#    personaje_atacante = Personaje(100, {"Norte": 0, "Sur": 0, "Este": 0, "Oeste": 0}, 10)
+
+#    soldado_atacado = Soldado(personaje_atacado, 50)
+#    soldado_atacante = Soldado(personaje_atacante, 50)
+
+#    print('Ataque 1')
+#    soldado_atacante.atacar(soldado_atacado)
+#    print('Ataque 2')
+#    soldado_atacante.atacar(soldado_atacado)
+
+#       Apartado c)
+    personaje = Personaje(100, {"Norte": 0, "Sur": 0, "Este": 0, "Oeste": 0}, 10)
+    personaje_campesino = Campesino(personaje, 100)
+
+    personaje_campesino.cosechar()
+
+
+
 
 
 
