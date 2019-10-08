@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import *
 from urllib import request
 from urllib.request import re
+from tkinter import  messagebox
 import dateutil.parser
 import sqlite3 as lite
 import sys
@@ -65,15 +66,16 @@ class Ventana:
                     for i in range(len(captura_impresa)):
                         cur.execute("INSERT INTO noticias VALUES (?, ?, ?, ?)", (i, captura_impresa[i][0], captura_impresa[i][1], captura_impresa[i][2]))
 
-                    cur = con.cursor()
-                    cur.execute("SELECT * FROM noticias")
-                    rows = cur.fetchall()
-                    for row in rows:
-                        print(row)
+#                    cur = con.cursor()
+#                    cur.execute("SELECT * FROM noticias")
+#                    rows = cur.fetchall()
+#                    for row in rows:
+#                        print(row)
             except lite.Error as e:
                 print("Error {}:".format(e.args[0]))
                 sys.exit(1)
             finally:
+                messagebox.showinfo(message="BD creada correctamente", title="Aviso")
                 if con:
                     con.close()
 
