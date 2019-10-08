@@ -63,7 +63,7 @@ class Ventana:
                     cur.execute("DROP TABLE IF EXISTS noticias")
                     cur.execute("CREATE TABLE noticias(id INT, title TEXT, link TEXT, date TEXT)")
                     for i in range(len(captura_impresa)):
-                        cur.execute("INSERT INTO noticias VALUES(1,'Audi','52642','kmk')")
+                        cur.execute("INSERT INTO noticias VALUES (?, ?, ?, ?)", (i, captura_impresa[i][0], captura_impresa[i][1], captura_impresa[i][2]))
 
                     cur = con.cursor()
                     cur.execute("SELECT * FROM noticias")
