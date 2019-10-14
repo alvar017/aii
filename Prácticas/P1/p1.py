@@ -17,9 +17,11 @@ class Busca:
         f.close()
 
         soup = BeautifulSoup(captura, 'html.parser')
-        items = soup.select('item')
-        for i in range(len(items)):
-            aux = [items[i].find('title').string, items[i].contents[3].next, items[i].find('pubdate').string]
+        threads = soup.findAll("li", {"class": "threadbit"})
+        for i in range(len(threads)):
+            titulo = threads[i].find("a", {"class": "title"}).get('title')
+            enlace = 'https://foros.derecho.com/' + threads[i].find("a", {"class": "title"}).get('href')
+            aux = [titulo, enlace]
             res.append(aux)
         return res
 
@@ -58,7 +60,7 @@ class Ventana:
         self.busca.imprime_con_scroll(captura_finder)
 
     def almacena(self):
-        captura_impresa = self.busca.captura_url('http://www.us.es/rss/feed/portada')
+        captura_impresa = self.busca.captura_url('https://foros.derecho.com/foro/20-Derecho-Civil-General')
         con = None
         try:
             con = lite.connect('test.db')
@@ -97,13 +99,26 @@ class Ventana:
 
     def inicia_ventana_principal(self):
         v = Ventana()
-        top = tk.Tk()
-        button_almacenar = Button(top, text="Almacenar", command=v.almacena)
-        button_almacenar.pack(side=tk.LEFT)
-        button_list = Button(top, text="Listar", command=v.list)
-        button_list.pack(side=tk.LEFT)
-        button_buscar = Button(top, text="Buscar", command=v.buscador)
-        button_buscar.pack(side=tk.LEFT)
+        top = Tk()
+
+        menu = Menu(top)
+        top.config(menu=menu)
+
+        subMenuDatos = Menu(menu)
+        menu.add_cascade(label="Datos", menu=subMenuDatos)
+        subMenuDatos.add_command(label="Cargar", command=v.almacena)
+        subMenuDatos.add_command(label="Mostrar", command=v.list)
+        subMenuDatos.add_command(label="Salir")
+
+        subMenuBuscar = Menu(menu)
+        menu.add_cascade(label="Buscar", menu=subMenuBuscar)
+        subMenuBuscar.add_command(label="Tema")
+        subMenuBuscar.add_command(label="Fecha")
+
+        subMenuEstadisticas = Menu(menu)
+        menu.add_cascade(label="Estadísticas", menu=subMenuEstadisticas)
+        subMenuEstadisticas.add_command(label="Temas más populares")
+        subMenuEstadisticas.add_command(label="Temas más activos")
         top.mainloop()
 
 
