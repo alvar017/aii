@@ -36,7 +36,7 @@ class Busca:
         res = []
         for elemento in captura_filtrada:
             fecha_parseada = 'Fecha: ' + dateutil.parser.parse(elemento[2]).strftime("%d/%m/%Y") + '\n'
-            aux = ['Título: ' + elemento[0] + '\n', 'Link: ' + elemento[1] + '\n', fecha_parseada, '\n']
+            aux = ['Título: ' + elemento[0] + '\n', 'Autor: : ' + elemento[1] + '\n', fecha_parseada, '\n']
             res.append(aux)
         root = tk.Tk()
         scrollbar = tk.Scrollbar(root, orient="vertical")
@@ -59,7 +59,7 @@ class Ventana:
         conn = lite.connect('test.db')
         conn.text_factory = str
         # Creo cursor con la búsqueda
-        cursor = conn.execute("SELECT TITLE,LINK,DATE FROM noticias WHERE DATE LIKE ?", ('%%',))
+        cursor = conn.execute("SELECT TITULO,AUTOR,FECHA FROM hilos")
         captura_finder = []
         for row in cursor:
             captura_finder.append(row)
@@ -67,16 +67,16 @@ class Ventana:
         self.busca.imprime_con_scroll(captura_finder)
 
     def almacena(self):
-        captura_impresa = self.busca.captura_url('https://foros.derecho.com/foro/20-Derecho-Civil-General')
+        c = self.busca.captura_url('https://foros.derecho.com/foro/20-Derecho-Civil-General')
         con = None
         try:
             con = lite.connect('test.db')
             with con:
                 cur = con.cursor()
-                cur.execute("DROP TABLE IF EXISTS noticias")
-                cur.execute("CREATE TABLE noticias(ID INT, TITLE TEXT, LINK TEXT, DATE TEXT)")
-                for i in range(len(captura_impresa)):
-                    cur.execute("INSERT INTO noticias VALUES (?, ?, ?, ?)", (i, captura_impresa[i][0], captura_impresa[i][1], captura_impresa[i][2]))
+                cur.execute("DROP TABLE IF EXISTS hilos")
+                cur.execute("CREATE TABLE hilos(ID INT, TITULO TEXT, ENLACE TEXT, AUTOR TEXT, FECHA TEXT, RESPUESTAS TEXT, VISITAS TEXT)")
+                for i in range(len(c)):
+                    cur.execute("INSERT INTO hilos VALUES (?, ?, ?, ?, ?, ?, ?)", (i, c[i][0], c[i][1], c[i][2], c[i][3], c[i][4], c[i][5]))
         except lite.Error as e:
             print("Error {}:".format(e.args[0]))
             sys.exit(1)
