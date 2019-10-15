@@ -4,6 +4,7 @@ from urllib import request
 from tkinter import messagebox
 import dateutil.parser
 import sqlite3 as lite
+from urllib.request import re
 import sys
 
 from bs4 import BeautifulSoup
@@ -21,7 +22,13 @@ class Busca:
         for i in range(len(threads)):
             titulo = threads[i].find("a", {"class": "title"}).get('title')
             enlace = 'https://foros.derecho.com/' + threads[i].find("a", {"class": "title"}).get('href')
-            aux = [titulo, enlace]
+            autor = threads[i].find("a", {"class": "username understate"}).next
+            fecha = threads[i].find("a", {"class": "username understate"}).nextSibling
+            respuestas_y_visitas = threads[i].findAll("li")
+            respuestas = respuestas_y_visitas[0].text[-1:]
+            visitas = respuestas_y_visitas[1].text[-1:]
+
+            aux = [titulo, enlace, autor, fecha, respuestas, visitas]
             res.append(aux)
         return res
 
