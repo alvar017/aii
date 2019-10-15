@@ -23,7 +23,7 @@ class Busca:
             titulo = threads[i].find("a", {"class": "title"}).get('title')
             enlace = 'https://foros.derecho.com/' + threads[i].find("a", {"class": "title"}).get('href')
             autor = threads[i].find("a", {"class": "username understate"}).next
-            fecha = threads[i].find("a", {"class": "username understate"}).nextSibling
+            fecha = threads[i].find("a", {"class": "username understate"}).nextSibling.string[2:]
             respuestas_y_visitas = threads[i].findAll("li")
             respuestas = respuestas_y_visitas[0].text[-1:]
             visitas = respuestas_y_visitas[1].text[-1:]
@@ -77,20 +77,21 @@ class Ventana:
                 cur.execute("CREATE TABLE hilos(ID INT, TITULO TEXT, ENLACE TEXT, AUTOR TEXT, FECHA TEXT, RESPUESTAS TEXT, VISITAS TEXT)")
                 for i in range(len(c)):
                     cur.execute("INSERT INTO hilos VALUES (?, ?, ?, ?, ?, ?, ?)", (i, c[i][0], c[i][1], c[i][2], c[i][3], c[i][4], c[i][5]))
+                messagebox.showinfo(message="BD creada correctamente con " + str(len(c)) + " respuestas", title="Aviso")
         except lite.Error as e:
             print("Error {}:".format(e.args[0]))
+            messagebox.showinfo(message="Se ha producido un error", title="Aviso")
             sys.exit(1)
         finally:
-            messagebox.showinfo(message="BD creada correctamente", title="Aviso")
             if con:
                 con.close()
 
-    def buscador(self):
+    def buscador_tema(self):
         def busca_db(entry):
             conn = lite.connect('test.db')
             conn.text_factory = str
             s = "%" + en.get() + "%"
-            cursor = conn.execute("""SELECT TITLE,LINK,DATE FROM noticias WHERE DATE LIKE ?""", (s,))
+            cursor = conn.execute("""SELECT TITULO,ENLACE,FECHA FROM hilos WHERE TITULO LIKE ?""", (s,))
             captura_finder = []
             for row in cursor:
                 captura_finder.append(row)
@@ -98,7 +99,26 @@ class Ventana:
             self.busca.imprime_con_scroll(captura_finder)
 
         v = Toplevel()
-        lb = Label(v, text="Introduzca el mes (Xxx): ")
+        lb = Label(v, text="Introduzca el título del tema: ")
+        lb.pack(side=LEFT)
+        en = Entry(v)
+        en.bind("<Return>", busca_db)
+        en.pack(side=LEFT)
+
+    def buscador_fecha(self):
+        def busca_db(entry):
+            conn = lite.connect('test.db')
+            conn.text_factory = str
+            s = "%" + en.get()[3:5] + "/" + en.get()[0:2] + en.get()[5:] + "%"
+            cursor = conn.execute("""SELECT TITULO,ENLACE,FECHA FROM hilos WHERE FECHA LIKE ?""", (s,))
+            captura_finder = []
+            for row in cursor:
+                captura_finder.append(row)
+            conn.close()
+            self.busca.imprime_con_scroll(captura_finder)
+
+        v = Toplevel()
+        lb = Label(v, text="Introduzca la fecha a buscar (dia/mes/año): ")
         lb.pack(side=LEFT)
         en = Entry(v)
         en.bind("<Return>", busca_db)
@@ -115,12 +135,16 @@ class Ventana:
         menu.add_cascade(label="Datos", menu=subMenuDatos)
         subMenuDatos.add_command(label="Cargar", command=v.almacena)
         subMenuDatos.add_command(label="Mostrar", command=v.list)
-        subMenuDatos.add_command(label="Salir")
+
+        def close_window():
+            top.destroy()
+
+        subMenuDatos.add_command(label="Salir", command=close_window)
 
         subMenuBuscar = Menu(menu)
         menu.add_cascade(label="Buscar", menu=subMenuBuscar)
-        subMenuBuscar.add_command(label="Tema")
-        subMenuBuscar.add_command(label="Fecha")
+        subMenuBuscar.add_command(label="Tema", command=v.buscador_tema)
+        subMenuBuscar.add_command(label="Fecha", command=v.buscador_fecha)
 
         subMenuEstadisticas = Menu(menu)
         menu.add_cascade(label="Estadísticas", menu=subMenuEstadisticas)
