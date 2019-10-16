@@ -23,11 +23,12 @@ class Find:
             link = 'https://foros.derecho.com/' + threads[i].find("a", {"class": "title"}).get('href')
             author = threads[i].find("a", {"class": "username understate"}).next
             date = threads[i].find("a", {"class": "username understate"}).nextSibling.string[2:]
+            date_parse = dateutil.parser.parse(date).strftime("%d/%m/%Y")
             answers_and_visits = threads[i].findAll("li")
             answers = answers_and_visits[0].text[-1:]
             visits = answers_and_visits[1].text[-1:]
 
-            aux = [title, link, author, date, answers, visits]
+            aux = [title, link, author, date_parse, answers, visits]
             res.append(aux)
         return res
 
@@ -35,19 +36,20 @@ class Find:
         res = []
         # Recuerda el orden: thread -> id, title, link, author, date, answers, visits
         for thread in threads:
-            parse_date = 'Fecha: ' + dateutil.parser.parse(thread[4]).strftime("%d/%m/%Y") + '\n'
-            aux = ['Título: ' + thread[1] + '\n', 'Autor: : ' + thread[3] + '\n', parse_date, '\n']
+            aux = ['Título: ' + thread[1] + '\n', 'Autor: : ' + thread[3] + '\n', 'Fecha: ' + thread[4] + '\n', '\n']
             res.append(aux)
-        root = tk.Tk()
-        scrollbar = tk.Scrollbar(root, orient="vertical")
-        lb = tk.Listbox(root, width=190, height=20, yscrollcommand=scrollbar.set)
-        scrollbar.config(command=lb.yview)
-        scrollbar.pack(side="right", fill="y")
-        lb.pack(side="left", fill="both", expand=True)
-        for i in range(len(res)):
-            for z in range(len(res[i])):
-                lb.insert("end", res[i][z])
-        root.mainloop()
+
+        v = Toplevel()
+        sc = Scrollbar(v)
+        sc.pack(side=RIGHT, fill=Y)
+        lb = Listbox(v, width=150, yscrollcommand=sc.set)
+        for row in res:
+            lb.insert(END, row[0])
+            lb.insert(END, row[1])
+            lb.insert(END, row[2])
+            lb.insert(END, '')
+        lb.pack(side=LEFT, fill=BOTH)
+        sc.config(command=lb.yview)
 
     def find_more_popular(self):
         threads = self.find_db(None, None)
@@ -104,63 +106,62 @@ class Window:
             if con:
                 con.close()
 
-    def find_title(self):
+    def create_search_box(self, question, category):
         find = self.find
 
-        def find_aux(entry):
-            self.find.print_with_scroll(find.find_db(en.get(), 'title'))
-
         v = Toplevel()
-        lb = Label(v, text="Introduzca el título del tema: ")
+        lb = Label(v, text=question)
         lb.pack(side=LEFT)
         en = Entry(v)
 
+        def find_aux(entry):
+            if category == 'title':
+                self.find.print_with_scroll(find.find_db(en.get(), 'title'))
+            else:
+                self.find.print_with_scroll(find.find_db(en.get(), 'date'))
+
         en.bind("<Return>", find_aux)
         en.pack(side=LEFT)
+
+        return en
+
+    def find_title(self):
+        self.create_search_box('Intoduzca título del tema', 'title')
 
     def find_date(self):
-        find = self.find
-
-        def find_aux(entry):
-            self.find.print_with_scroll(find.find_db(en.get(), 'date'))
-
-        v = Toplevel()
-        lb = Label(v, text="Introduzca la fecha a buscar (dia/mes/año): ")
-        lb.pack(side=LEFT)
-        en = Entry(v)
-        en.bind("<Return>", find_aux)
-        en.pack(side=LEFT)
+        self.create_search_box('Introduzca la fecha a buscar (dia/mes/año): ', 'date')
 
     def start(self):
-        w = Window()
-        f = Find()
-        top = Tk()
+        window = Window()
+        find = Find()
 
-        menu = Menu(top)
-        top.config(menu=menu)
+        root = Tk()
+        menubar = Menu(root)
+        root.config(menu=menubar)
 
-        subMenuDatos = Menu(menu)
-        menu.add_cascade(label="Datos", menu=subMenuDatos)
-        subMenuDatos.add_command(label="Cargar", command=w.save)
-        subMenuDatos.add_command(label="Mostrar", command=w.list)
+        data_menu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Datos", menu=data_menu)
+        data_menu.add_command(label="Cargar", command=window.save)
+        data_menu.add_command(label="Mostrar", command=window.list)
+        data_menu.add_separator()
 
         def close_window():
-            top.destroy()
+            root.destroy()
 
-        subMenuDatos.add_command(label="Salir", command=close_window)
+        data_menu.add_command(label="Salir", command=close_window)
 
-        subMenuBuscar = Menu(menu)
-        menu.add_cascade(label="Buscar", menu=subMenuBuscar)
-        subMenuBuscar.add_command(label="Tema", command=w.find_title)
-        subMenuBuscar.add_command(label="Fecha", command=w.find_date)
+        subMenuBuscar = Menu(menubar)
+        menubar.add_cascade(label="Buscar", menu=subMenuBuscar)
+        subMenuBuscar.add_command(label="Tema", command=window.find_title)
+        subMenuBuscar.add_command(label="Fecha", command=window.find_date)
 
-        subMenuEstadisticas = Menu(menu)
-        menu.add_cascade(label="Estadísticas", menu=subMenuEstadisticas)
-        subMenuEstadisticas.add_command(label="Temas más populares", command=f.find_more_popular)
-        subMenuEstadisticas.add_command(label="Temas más activos", command=f.find_more_active)
-        top.mainloop()
+        subMenuEstadisticas = Menu(menubar)
+        menubar.add_cascade(label="Estadísticas", menu=subMenuEstadisticas)
+        subMenuEstadisticas.add_command(label="Temas más populares", command=find.find_more_popular)
+        subMenuEstadisticas.add_command(label="Temas más activos", command=find.find_more_active)
+
+        root.mainloop()
 
 
 if __name__ == "__main__":
     Window().start()
-
