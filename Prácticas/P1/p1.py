@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import *
 from urllib import request
-from tkinter import messagebox
+from tkinter import messagebox, Tk
 import dateutil.parser
 import sqlite3 as lite
 import sys
@@ -136,6 +136,19 @@ class Window:
         find = Find()
 
         root = Tk()
+        root.resizable(0, 0)
+
+        # Esta referencia debe mantenerse mientra necesitemos el fondo
+        background_image = tk.PhotoImage(file=r"./us.png")
+
+        w = background_image.width()
+        h = background_image.height()
+
+        root.geometry("{}x{}+{}+{}".format(w, h, 0, 0))
+
+        background_label = tk.Label(root, image=background_image)
+        background_label.pack(side='top', fill='both', expand='yes')
+
         menubar = Menu(root)
         root.config(menu=menubar)
 
@@ -150,15 +163,15 @@ class Window:
 
         data_menu.add_command(label="Salir", command=close_window)
 
-        subMenuBuscar = Menu(menubar)
-        menubar.add_cascade(label="Buscar", menu=subMenuBuscar)
-        subMenuBuscar.add_command(label="Tema", command=window.find_title)
-        subMenuBuscar.add_command(label="Fecha", command=window.find_date)
+        find_menu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Buscar", menu=find_menu)
+        find_menu.add_command(label="Tema", command=window.find_title)
+        find_menu.add_command(label="Fecha", command=window.find_date)
 
-        subMenuEstadisticas = Menu(menubar)
-        menubar.add_cascade(label="Estadísticas", menu=subMenuEstadisticas)
-        subMenuEstadisticas.add_command(label="Temas más populares", command=find.find_more_popular)
-        subMenuEstadisticas.add_command(label="Temas más activos", command=find.find_more_active)
+        estadistics_menu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Estadísticas", menu=estadistics_menu)
+        estadistics_menu.add_command(label="Temas más populares", command=find.find_more_popular)
+        estadistics_menu.add_command(label="Temas más activos", command=find.find_more_active)
 
         root.mainloop()
 
