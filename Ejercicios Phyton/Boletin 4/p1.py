@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import *
 from urllib import request
-from tkinter import messagebox, Tk
+from tkinter import messagebox
 import sqlite3 as lite
 import sys
 
@@ -32,7 +32,6 @@ class Find:
 
     def print_with_scroll(self, threads):
         res = []
-        # Recuerda el orden: thread -> id, title, link, author, date, answers, visits
         for thread in threads:
             aux = [thread[1] + '\n', 'Partido: ' + thread[2] + '\n', 'Resultado: ' + thread[3] + '\n', 'Link: ' + thread[4] + '\n', '\n']
             res.append(aux)
@@ -89,26 +88,13 @@ class Window:
                 con.close()
 
     def start(self):
-        window = Window()
-        find = Find()
-
-        root = Tk()
-
-        menubar = Menu(root)
-        root.config(menu=menubar)
-
-        data_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Datos", menu=data_menu)
-        data_menu.add_command(label="Cargar", command=window.save)
-        data_menu.add_command(label="Mostrar", command=window.list)
-        data_menu.add_separator()
-
-        def close_window():
-            root.destroy()
-
-        data_menu.add_command(label="Salir", command=close_window)
-
-        root.mainloop()
+        w = Window()
+        top = tk.Tk()
+        button_almacenar = Button(top, text="Almacenar resultados", command=w.save)
+        button_almacenar.pack(side=tk.LEFT)
+        button_list = Button(top, text="Listar jornadas", command=w.list)
+        button_list.pack(side=tk.LEFT)
+        top.mainloop()
 
 
 if __name__ == "__main__":
