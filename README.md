@@ -9,3 +9,16 @@ Profesor: <a href="http://www.lsi.us.es/~carrillo/">Vicente Carrillo Montero</a>
 
     Álvaro de la Flor Bonilla - alvdebon@alum.us.es
     Univerdad de Sevilla
+
+### Documentación de interés
+
+En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo de la asignatura.
+
+    Tutorial TKINTER
+    https://www.tutorialspoint.com/python3/python_gui_programming.htm
+    
+    Tutorial API de Python para SQLite
+    https://www.tutorialspoint.com/sqlite/sqlite_python.htm
+
+    Documentación de Beautiful Soup
+    https://www.crummy.com/software/BeautifulSoup/bs4/doc/
