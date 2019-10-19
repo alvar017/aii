@@ -24,4 +24,4 @@ En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo 
     Documentación de Beautiful Soup
     https://www.crummy.com/software/BeautifulSoup/bs4/doc/
     
-> **_Tutorial TKINTER:_**  https://www.tutorialspoint.com/python3/python_gui_programming.htm
+> **_[Tutorial TKINTER](https://www.tutorialspoint.com/python3/python_gui_programming.htm):_**
