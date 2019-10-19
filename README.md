@@ -21,4 +21,4 @@ En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo 
 
 
     Álvaro de la Flor Bonilla - alvdebon@alum.us.es
-    Escuela Técnica Superior de Ingeniería Informática (ETSII), Univerdad de Sevilla
+    Escuela Técnica Superior de Ingeniería Informática (ETSII), Universidad de Sevilla
