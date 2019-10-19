@@ -1,4 +1,4 @@
-# aii
+# AII - Acceso Inteligente a la Información
 
 Repositorio creado para almacenar todos los ejercicios propuestos y sus soluciones para la asignatura
 <a href="http://www.lsi.us.es/docencia/pagina_asignatura.php?id=119&cur=2019">Acceso Inteligente a la Información - AII</a>
