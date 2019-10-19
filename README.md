@@ -7,9 +7,6 @@ Las soluciones que utilizan el formato "DOCX" son las desarrolladas por el profe
 
 Todo otro archivo ha sido implementado por mí, no teniendo garantía de correción oficial.
 
-    Álvaro de la Flor Bonilla - alvdebon@alum.us.es
-    Escuela Técnica Superior de Ingeniería Informática (ETSII), Univerdad de Sevilla
-
 ### Documentación de interés
 
 En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo de la asignatura.
@@ -19,3 +16,7 @@ En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo 
 > **_[Tutorial API de Python para SQLite](https://www.tutorialspoint.com/sqlite/sqlite_python.htm)_** Como trabajar con una base de datos SQLite directamente desde Python.
 
 > **_[Documentación de Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)_** BeatifulSoup para su uso en scraping.
+
+
+    Álvaro de la Flor Bonilla - alvdebon@alum.us.es
+    Escuela Técnica Superior de Ingeniería Informática (ETSII), Univerdad de Sevilla
