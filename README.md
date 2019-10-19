@@ -18,3 +18,5 @@ En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo 
 > **_[Tutorial API de Python para SQLite](https://www.tutorialspoint.com/sqlite/sqlite_python.htm)_** Como trabajar con una base de datos SQLite directamente desde Python.
 
 > **_[Documentación de Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)_** BeatifulSoup para su uso en scraping.
+
+<addr>Hola</addr>
