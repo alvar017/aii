@@ -24,4 +24,4 @@ En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo 
     Documentación de Beautiful Soup
     https://www.crummy.com/software/BeautifulSoup/bs4/doc/
     
-[GitHub](http://github.com)
+> **_NOTE:_**  The note content.
