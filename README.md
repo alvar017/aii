@@ -1,8 +1,8 @@
 # aii
 
 Repositorio creado para almacenar todos los ejercicios propuestos y sus soluciones para la asignatura
-Acceso Inteligente a la Información - AII
+<a href="http://www.lsi.us.es/docencia/pagina_asignatura.php?id=119&cur=2019">Acceso Inteligente a la Información - AII</a>
 
-Profesor: Vicente Carrillo Montero (http://www.lsi.us.es/~carrillo/) <a href="http://www.lsi.us.es/~carrillo/">Vicente Carrillo Montero</a>
+Profesor: <a href="http://www.lsi.us.es/~carrillo/">Vicente Carrillo Montero</a>
 
 Univerdad de Sevilla
