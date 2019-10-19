@@ -16,11 +16,12 @@ En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo 
 
     Tutorial TKINTER
     https://www.tutorialspoint.com/python3/python_gui_programming.htm
-    \n
+
+
     Tutorial API de Python para SQLite
     https://www.tutorialspoint.com/sqlite/sqlite_python.htm
 
     Documentación de Beautiful Soup
     https://www.crummy.com/software/BeautifulSoup/bs4/doc/
     
-    [GitHub](http://github.com)
+[GitHub](http://github.com)
