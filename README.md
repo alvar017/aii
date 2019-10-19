@@ -13,15 +13,9 @@ Profesor: <a href="http://www.lsi.us.es/~carrillo/">Vicente Carrillo Montero</a>
 ### Documentación de interés
 
 En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo de la asignatura.
-
-    Tutorial TKINTER
-    https://www.tutorialspoint.com/python3/python_gui_programming.htm
-
-
-    Tutorial API de Python para SQLite
-    https://www.tutorialspoint.com/sqlite/sqlite_python.htm
-
-    Documentación de Beautiful Soup
-    https://www.crummy.com/software/BeautifulSoup/bs4/doc/
     
-> **_[Tutorial TKINTER](https://www.tutorialspoint.com/python3/python_gui_programming.htm):_**
+> **_[Tutorial TKINTER](https://www.tutorialspoint.com/python3/python_gui_programming.htm)_** Como crear nuevas pentañas, sus menús, ventanas de aviso...
+
+> **_[Tutorial API de Python para SQLite](https://www.tutorialspoint.com/sqlite/sqlite_python.htm)_** Como trabajar con una base de datos SQLite directamente desde Python.
+
+> **_[Documentación de Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)_** BeatifulSoup para su uso en scraping.
