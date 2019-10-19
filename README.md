@@ -8,8 +8,7 @@ Las soluciones que utilizan el formato "DOCX" son las desarrolladas por el profe
 Todo otro archivo ha sido implementado por mí, no teniendo garantía de correción oficial.
 
     Álvaro de la Flor Bonilla - alvdebon@alum.us.es
-    > **_[Tutorial TKINTER](https://www.tutorialspoint.com/python3/python_gui_programming.htm)_** Como crear nuevas pentañas, sus menús, ventanas de aviso...
-    Univerdad de Sevilla
+    Escuela Técnica Superior de Ingeniería Informática (ETSII), Univerdad de Sevilla
 
 ### Documentación de interés
 
