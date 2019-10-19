@@ -1,4 +1,5 @@
 # AII - Acceso Inteligente a la Información
+    2019/2020
 
 Repositorio creado para almacenar todos los ejercicios propuestos y sus soluciones tantos de los boletines como de las prácticas individuales para la asignatura <a href="http://www.lsi.us.es/docencia/pagina_asignatura.php?id=119&cur=2019">Acceso Inteligente a la Información - AII</a>, cursada en cuarto año del grado Ingeniería Informática - Ingeniería del Software.
 
@@ -18,5 +19,3 @@ En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo 
 > **_[Tutorial API de Python para SQLite](https://www.tutorialspoint.com/sqlite/sqlite_python.htm)_** Como trabajar con una base de datos SQLite directamente desde Python.
 
 > **_[Documentación de Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)_** BeatifulSoup para su uso en scraping.
-
-<addr>Hola</addr>
