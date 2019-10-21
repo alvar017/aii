@@ -17,26 +17,31 @@ class Find:
         f.close()
 
         soup = BeautifulSoup(page, 'html.parser')
-        threads = soup.findAll("li", {"class": "threadbit"})
-        for i in range(len(threads)):
-            title = threads[i].find("a", {"class": "title"}).get('title')
-            link = 'https://foros.derecho.com/' + threads[i].find("a", {"class": "title"}).get('href')
-            author = threads[i].find("a", {"class": "username understate"}).next
-            date = threads[i].find("a", {"class": "username understate"}).nextSibling.string[2:]
-            date_parse = dateutil.parser.parse(date).strftime("%d/%m/%Y")
-            answers_and_visits = threads[i].findAll("li")
-            answers = answers_and_visits[0].text[-1:]
-            visits = answers_and_visits[1].text[-1:]
+        products = soup.findAll("div", {"class": "grid__item m-one-whole t-one-third d-one-third dw-one-quarter | js-product-grid-grid"})
+        for i in range(len(products)):
+            brand = products[i].find("h4", {"class": "product-item__brand micro | push-half--bottom"}).find("a").text.strip()
+            name = products[i].find("h3", {"class": "product-item__name zeta face-normal | flush--bottom"}).find("a").get("title")[8:]
+            link = "https://www.ulabox.com/" + products[i].find("h3", {"class": "product-item__name zeta face-normal | flush--bottom"}).find("a").get("href")
+            price_discoun = products[i].find("article").get("data-price")
+            price_normal = products[i].find("span", {"class": "product-grid-footer__price"})
+            price_normal_aux = products[i].find("span", {"class": "product-grid-footer__price"})
+            price_normal = price_normal_aux.find("del", {
+                "class": "product-item__price product-item__price--old product-grid-footer__price--old nano | flush--bottom"})
+            if price_normal is None:
+                price_normal = price_discoun
+            else:
+                price_normal = price_normal.text
+                price_normal = str(price_normal)[:-2]
 
-            aux = [title, link, author, date_parse, answers, visits]
+            aux = [brand, name, link, price_normal, price_discoun]
             res.append(aux)
         return res
 
     def print_with_scroll(self, threads):
         res = []
-        # Recuerda el orden: thread -> id, title, link, author, date, answers, visits
+        # aux = [brand, name, link, price_normal, price_discoun]
         for thread in threads:
-            aux = ['Título: ' + thread[1] + '\n', 'Autor: : ' + thread[3] + '\n', 'Fecha: ' + thread[4] + '\n', '\n']
+            aux = ['Nombre: ' + thread[2] + '\n', 'Precio final: : ' + thread[5]]
             res.append(aux)
 
         v = Toplevel()
@@ -46,7 +51,6 @@ class Find:
         for row in res:
             lb.insert(END, row[0])
             lb.insert(END, row[1])
-            lb.insert(END, row[2])
             lb.insert(END, '')
         lb.pack(side=LEFT, fill=BOTH)
         sc.config(command=lb.yview)
@@ -87,16 +91,16 @@ class Window:
         self.find.print_with_scroll(self.find.find_db(None, None))
 
     def save(self):
-        c = self.find.find_url('https://foros.derecho.com/foro/20-Derecho-Civil-General')
+        c = self.find.find_url('https://www.ulabox.com/campaign/productos-sin-gluten#gref')
         con = None
         try:
             con = lite.connect('test.db')
             with con:
                 cur = con.cursor()
-                cur.execute("DROP TABLE IF EXISTS hilos")
-                cur.execute("CREATE TABLE hilos(ID INT, TITULO TEXT, ENLACE TEXT, AUTOR TEXT, FECHA TEXT, RESPUESTAS TEXT, VISITAS TEXT)")
+                cur.execute("DROP TABLE IF EXISTS products")
+                cur.execute("CREATE TABLE products(ID INT, BRAND TEXT, NAME TEXT, LINK TEXT, PRICE_NORMAL TEXT, PRICE_DISCOUN TEXT)")
                 for i in range(len(c)):
-                    cur.execute("INSERT INTO hilos VALUES (?, ?, ?, ?, ?, ?, ?)", (i, c[i][0], c[i][1], c[i][2], c[i][3], c[i][4], c[i][5]))
+                    cur.execute("INSERT INTO products VALUES (?, ?, ?, ?, ?, ?)", (i, c[i][0], c[i][1], c[i][2], c[i][3], c[i][4]))
                 messagebox.showinfo(message="BD creada correctamente con " + str(len(c)) + " respuestas", title="Aviso")
         except lite.Error as e:
             print("Error {}:".format(e.args[0]))
