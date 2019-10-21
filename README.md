@@ -1,14 +1,13 @@
 # AII - Acceso Inteligente a la Información
+###### 2019/2020
 
-Repositorio creado para almacenar todos los ejercicios propuestos y sus soluciones para la asignatura
-<a href="http://www.lsi.us.es/docencia/pagina_asignatura.php?id=119&cur=2019">Acceso Inteligente a la Información - AII</a>, cursada en cuarto año del grado Ingeniería Informática - Ingeniería del Software.
+### Abstract
 
-Las soluciones que utilizan el formato "DOCX" son las propuestas por el profesor.
+Repositorio creado para almacenar todos los ejercicios propuestos y sus soluciones tantos de los boletines como de las prácticas individuales para la asignatura <a href="http://www.lsi.us.es/docencia/pagina_asignatura.php?id=119&cur=2019">Acceso Inteligente a la Información - AII</a>, cursada en cuarto año del grado Ingeniería Informática - Ingeniería del Software, Universidad de Sevilla.
 
-Profesor: <a href="http://www.lsi.us.es/~carrillo/">Vicente Carrillo Montero</a>
+Las soluciones que utilizan el formato "DOCX" son las desarrolladas por el profesor <a href="http://www.lsi.us.es/~carrillo/">Vicente Carrillo Montero</a>.
 
-    Álvaro de la Flor Bonilla - alvdebon@alum.us.es
-    Univerdad de Sevilla
+Todo otro archivo ha sido implementado por mí, no teniendo garantía de correción oficial.
 
 ### Documentación de interés
 
@@ -19,3 +18,7 @@ En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo 
 > **_[Tutorial API de Python para SQLite](https://www.tutorialspoint.com/sqlite/sqlite_python.htm)_** Como trabajar con una base de datos SQLite directamente desde Python.
 
 > **_[Documentación de Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)_** BeatifulSoup para su uso en scraping.
+
+
+    Álvaro de la Flor Bonilla - alvdebon@alum.us.es
+    Escuela Técnica Superior de Ingeniería Informática (ETSII), Universidad de Sevilla

@@ -138,7 +138,7 @@ class Window:
         root = Tk()
         root.resizable(0, 0)
 
-        # Esta referencia debe mantenerse mientra necesitemos el fondo
+        # Esta referencia debe mantenerse mientras necesitemos el fondo
         background_image = tk.PhotoImage(file=r"./us.png")
 
         w = background_image.width()

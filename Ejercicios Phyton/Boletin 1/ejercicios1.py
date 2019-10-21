@@ -271,10 +271,9 @@ if __name__ == '__main__':
 #    soldado_atacante.atacar(soldado_atacado)
 
 #       Apartado c)
-    personaje = Personaje(100, {"Norte": 0, "Sur": 0, "Este": 0, "Oeste": 0}, 10)
-    personaje_campesino = Campesino(personaje, 100)
-
-    personaje_campesino.cosechar()
+#    personaje = Personaje(100, {"Norte": 0, "Sur": 0, "Este": 0, "Oeste": 0}, 10)
+#    personaje_campesino = Campesino(personaje, 100)
+#    personaje_campesino.cosechar()
 
 
 
