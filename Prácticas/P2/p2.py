@@ -15,14 +15,17 @@ class Find:
         f.close()
 
         soup = BeautifulSoup(page, 'html.parser')
-        products = soup.findAll("div", {"class": "grid__item m-one-whole t-one-third d-one-third dw-one-quarter | js-product-grid-grid"})
+        products = soup\
+            .findAll("div", {"class": "grid__item m-one-whole t-one-third d-one-third dw-one-quarter | js-product-grid-grid"})
         for i in range(len(products)):
             brand = products[i].find("h4", {"class": "product-item__brand micro | push-half--bottom"}).find("a").text.strip()
             name = products[i].find("h3", {"class": "product-item__name zeta face-normal | flush--bottom"}).find("a").get("title")[8:]
             link = "https://www.ulabox.com/" + products[i].find("h3", {"class": "product-item__name zeta face-normal | flush--bottom"}).find("a").get("href")
             price_discoun = products[i].find("article").get("data-price")
-            price_normal_aux = products[i].find("span", {"class": "product-grid-footer__price"})
-            price_normal = price_normal_aux.find("del", {
+            price_normal = products[i]\
+                .find("span", {
+                "class": "product-grid-footer__price"})\
+                .find("del", {
                 "class": "product-item__price product-item__price--old product-grid-footer__price--old nano | flush--bottom"})
             if price_normal is None:
                 price_normal = price_discoun
@@ -131,11 +134,11 @@ class Window:
         root = Tk()
 
         button_save = Button(root, text="Almacenar en la base de datos", command=window.save)
-        button_save.pack(side=tk.LEFT)
+        button_save.pack(side=tk.TOP)
         button_save = Button(root, text="Buscar por marca", command=window.find_by_brand)
-        button_save.pack(side=tk.LEFT)
+        button_save.pack(side=tk.TOP)
         button_find_brand = Button(root, text="Mostrar ofertas", command=find.find_discounts)
-        button_find_brand.pack(side=tk.LEFT)
+        button_find_brand.pack(side=tk.TOP)
 
         def close_window():
             root.destroy()
