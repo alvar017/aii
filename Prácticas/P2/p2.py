@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import *
 from urllib import request
 from tkinter import messagebox, Tk
-import dateutil.parser
 import sqlite3 as lite
 import sys
 
@@ -23,7 +22,6 @@ class Find:
             name = products[i].find("h3", {"class": "product-item__name zeta face-normal | flush--bottom"}).find("a").get("title")[8:]
             link = "https://www.ulabox.com/" + products[i].find("h3", {"class": "product-item__name zeta face-normal | flush--bottom"}).find("a").get("href")
             price_discoun = products[i].find("article").get("data-price")
-            price_normal = products[i].find("span", {"class": "product-grid-footer__price"})
             price_normal_aux = products[i].find("span", {"class": "product-grid-footer__price"})
             price_normal = price_normal_aux.find("del", {
                 "class": "product-item__price product-item__price--old product-grid-footer__price--old nano | flush--bottom"})
@@ -41,7 +39,10 @@ class Find:
         res = []
         # aux = [brand, name, link, price_normal, price_discoun]
         for thread in threads:
-            aux = ['Nombre: ' + thread[2] + '\n', 'Precio final: : ' + thread[5]]
+            if thread[4] != thread[5]:
+                aux = ['Nombre: ' + thread[2] + '\n', 'Precio final: ' + thread[5] + '€ (el anterior era : ' + thread[4] + '€)']
+            else:
+                aux = ['Nombre: ' + thread[2] + '\n', 'Precio final: ' + thread[5] + '€']
             res.append(aux)
 
         v = Toplevel()
@@ -55,27 +56,30 @@ class Find:
         lb.pack(side=LEFT, fill=BOTH)
         sc.config(command=lb.yview)
 
-    def find_more_popular(self):
-        threads = self.find_db(None, None)
-        threads.sort(reverse=True, key=lambda thread: int(thread[6]))
-        self.print_with_scroll(threads[0:5])
+    def find_brands(self):
+        res = []
+        for product in self.find_db(None):
+            if product[1] not in res:
+                res.append(product[1])
+        res.sort()
+        return res
 
-    def find_more_active(self):
-        threads = self.find_db(None, None)
-        threads.sort(reverse=True, key=lambda thread: int(thread[5]))
-        self.print_with_scroll(threads[0:5])
+    def find_discounts(self):
+        res = []
+        for product in self.find_db(None):
+            if product[4] != product[5]:
+                res.append(product)
+        res.sort()
+        self.print_with_scroll(res)
 
-    def find_db(self, en, category):
+    def find_db(self, brand):
         conn = lite.connect('test.db')
         conn.text_factory = str
-        if en is not None:
-            s = "%" + en + "%"
-            if category == 'title':
-                cursor = conn.execute("SELECT * FROM hilos WHERE TITULO LIKE ?", (s,))
-            elif category == 'date':
-                cursor = conn.execute("SELECT * FROM hilos WHERE FECHA LIKE ?", (s,))
+        if brand is not None:
+            s = "%" + brand + "%"
+            cursor = conn.execute("SELECT * FROM products WHERE BRAND LIKE ?", (s,))
         else:
-            cursor = conn.execute("SELECT * FROM hilos")
+            cursor = conn.execute("SELECT * FROM products")
         res = []
         for row in cursor:
             res.append(row)
@@ -88,7 +92,9 @@ class Window:
         self.find = Find()
 
     def list(self):
-        self.find.print_with_scroll(self.find.find_db(None, None))
+        spinbox = self.create_spinbox(self.find.find_brands())
+        result = spinbox.get()
+        print(result)
 
     def save(self):
         c = self.find.find_url('https://www.ulabox.com/campaign/productos-sin-gluten#gref')
@@ -110,30 +116,16 @@ class Window:
             if con:
                 con.close()
 
-    def create_search_box(self, question, category):
-        find = self.find
-
-        v = Toplevel()
-        lb = Label(v, text=question)
-        lb.pack(side=LEFT)
-        en = Entry(v)
-
-        def find_aux(entry):
-            if category == 'title':
-                self.find.print_with_scroll(find.find_db(en.get(), 'title'))
-            else:
-                self.find.print_with_scroll(find.find_db(en.get(), 'date'))
-
-        en.bind("<Return>", find_aux)
-        en.pack(side=LEFT)
-
-        return en
-
-    def find_title(self):
-        self.create_search_box('Intoduzca título del tema', 'title')
-
-    def find_date(self):
-        self.create_search_box('Introduzca la fecha a buscar (dia/mes/año): ', 'date')
+    def create_spinbox(self, values):
+        def finder_aux():
+            res = self.find.find_db(lb.get())
+            self.find.print_with_scroll(res)
+        master = Tk()
+        lb = Spinbox(master, values=values, width=10)
+        lb.pack()
+        button = Button(master, text='Buscar', command=finder_aux)
+        button.pack(side=LEFT)
+        master.mainloop()
 
     def start(self):
         window = Window()
@@ -169,13 +161,7 @@ class Window:
 
         find_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Buscar", menu=find_menu)
-        find_menu.add_command(label="Tema", command=window.find_title)
-        find_menu.add_command(label="Fecha", command=window.find_date)
-
-        estadistics_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Estadísticas", menu=estadistics_menu)
-        estadistics_menu.add_command(label="Temas más populares", command=find.find_more_popular)
-        estadistics_menu.add_command(label="Temas más activos", command=find.find_more_active)
+        find_menu.add_command(label="Mejores ofertas", command=find.find_discounts)
 
         root.mainloop()
 
