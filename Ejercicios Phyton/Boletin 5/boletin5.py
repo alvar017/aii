@@ -22,8 +22,8 @@ class Find:
             title = news[i].find("h2").find("a").text
             link = news[i].find("h2").find("a").get('href')
             author = news[i].find("div", {"class": "news-submitted"}).findAll("a")[1].text
-            date = news[i].findAll("span")[2].get("data-ts")
-            date_parse = datetime.fromtimestamp(int(date))
+            date = str(news[i].findAll("span")[2].get("data-ts"))
+            date_parse = datetime.fromtimestamp(date)
             content = news[i].find("div", {"class": "news-content"}).text
 
             aux = [title, link, author, date_parse, content]
