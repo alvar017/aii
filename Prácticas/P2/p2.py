@@ -1,11 +1,10 @@
 import tkinter as tk
 from tkinter import *
 from urllib import request
+from bs4 import BeautifulSoup
 from tkinter import messagebox, Tk
 import sqlite3 as lite
 import sys
-
-from bs4 import BeautifulSoup
 
 
 class Find:
@@ -56,6 +55,20 @@ class Find:
         lb.pack(side=LEFT, fill=BOTH)
         sc.config(command=lb.yview)
 
+    def find_db(self, brand):
+        conn = lite.connect('test.db')
+        conn.text_factory = str
+        if brand is not None:
+            s = "%" + brand + "%"
+            cursor = conn.execute("SELECT * FROM products WHERE BRAND LIKE ?", (s,))
+        else:
+            cursor = conn.execute("SELECT * FROM products")
+        res = []
+        for row in cursor:
+            res.append(row)
+        conn.close()
+        return res
+
     def find_brands(self):
         res = []
         for product in self.find_db(None):
@@ -72,29 +85,13 @@ class Find:
         res.sort()
         self.print_with_scroll(res)
 
-    def find_db(self, brand):
-        conn = lite.connect('test.db')
-        conn.text_factory = str
-        if brand is not None:
-            s = "%" + brand + "%"
-            cursor = conn.execute("SELECT * FROM products WHERE BRAND LIKE ?", (s,))
-        else:
-            cursor = conn.execute("SELECT * FROM products")
-        res = []
-        for row in cursor:
-            res.append(row)
-        conn.close()
-        return res
-
 
 class Window:
     def __init__(self):
         self.find = Find()
 
-    def list(self):
-        spinbox = self.create_spinbox(self.find.find_brands())
-        result = spinbox.get()
-        print(result)
+    def find_by_brand(self):
+        self.create_spinbox(self.find.find_brands())
 
     def save(self):
         c = self.find.find_url('https://www.ulabox.com/campaign/productos-sin-gluten#gref')
@@ -132,36 +129,18 @@ class Window:
         find = Find()
 
         root = Tk()
-        root.resizable(0, 0)
 
-        # Esta referencia debe mantenerse mientra necesitemos el fondo
-        background_image = tk.PhotoImage(file=r"./us.png")
-
-        w = background_image.width()
-        h = background_image.height()
-
-        root.geometry("{}x{}+{}+{}".format(w, h, 0, 0))
-
-        background_label = tk.Label(root, image=background_image)
-        background_label.pack(side='top', fill='both', expand='yes')
-
-        menubar = Menu(root)
-        root.config(menu=menubar)
-
-        data_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Datos", menu=data_menu)
-        data_menu.add_command(label="Cargar", command=window.save)
-        data_menu.add_command(label="Mostrar", command=window.list)
-        data_menu.add_separator()
+        button_save = Button(root, text="Almacenar en la base de datos", command=window.save)
+        button_save.pack(side=tk.LEFT)
+        button_save = Button(root, text="Buscar por marca", command=window.find_by_brand)
+        button_save.pack(side=tk.LEFT)
+        button_find_brand = Button(root, text="Mostrar ofertas", command=find.find_discounts)
+        button_find_brand.pack(side=tk.LEFT)
 
         def close_window():
             root.destroy()
-
-        data_menu.add_command(label="Salir", command=close_window)
-
-        find_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Buscar", menu=find_menu)
-        find_menu.add_command(label="Mejores ofertas", command=find.find_discounts)
+        button_find_brand = Button(root, text="Salir", command=close_window)
+        button_find_brand.pack(side=tk.LEFT)
 
         root.mainloop()
 
