@@ -10,24 +10,38 @@ from bs4 import BeautifulSoup
 
 
 class Find:
-    def find_url(self, url):
-        res = []
+
+    def find_url_aux(self, url):
         f = request.urlopen(url)
         page = f.read().decode(f.headers.get_content_charset())
         f.close()
-
         soup = BeautifulSoup(page, 'html.parser')
-        news = soup.findAll("div", {"class": "news-summary"})
+        return soup
+
+    def find_data(self, link):
+        res = []
+        page = self.find_url_aux(link)
+        news = page.findAll("div", {"class": "news-summary"})
         for i in range(len(news)):
             title = news[i].find("h2").find("a").text
             link = news[i].find("h2").find("a").get('href')
             author = news[i].find("div", {"class": "news-submitted"}).findAll("a")[1].text
-            date = str(news[i].findAll("span")[2].get("data-ts"))
+            date = int(news[i].find("span", {"class": "ts visible"}).get('data-ts'))
             date_parse = datetime.fromtimestamp(date)
             content = news[i].find("div", {"class": "news-content"}).text
-
             aux = [title, link, author, date_parse, content]
             res.append(aux)
+        return res
+
+    def find_url(self, url):
+        soup = self.find_url_aux(url)
+        pages_query = soup.find("div", {"class": "pages margin"}).findAll("a")
+        links_pages = []
+        for i in range(4):
+            links_pages.append('https://www.meneame.net/' + pages_query[i].get('href'))
+        res = []
+        for page in links_pages:
+            res.extend(self.find_data(page))
         return res
 
     def print_with_scroll(self, threads):
