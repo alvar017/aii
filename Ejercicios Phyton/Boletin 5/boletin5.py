@@ -1,12 +1,10 @@
-import tkinter as tk
 from tkinter import *
 from urllib import request
 from tkinter import messagebox, Tk
 from datetime import datetime
+from bs4 import BeautifulSoup
 import sqlite3 as lite
 import sys
-
-from bs4 import BeautifulSoup
 
 
 class Find:
@@ -33,16 +31,38 @@ class Find:
             res.append(aux)
         return res
 
-    def find_url(self, url):
+    def find_url(self, url, number_of_pages_to_find):
         soup = self.find_url_aux(url)
         pages_query = soup.find("div", {"class": "pages margin"}).findAll("a")
         links_pages = []
-        for i in range(4):
-            links_pages.append('https://www.meneame.net/' + pages_query[i].get('href'))
+        for i in range(int(number_of_pages_to_find)):
+            links_pages.append(url + pages_query[i].get('href'))
         res = []
         for page in links_pages:
             res.extend(self.find_data(page))
         return res
+
+    def find_db(self, en, category):
+        conn = lite.connect('test.db')
+        conn.text_factory = str
+        if en is not None:
+            s = "%" + en + "%"
+            if category == 'author':
+                cursor = conn.execute("SELECT * FROM news WHERE author LIKE ?", (s,))
+            elif category == 'date':
+                cursor = conn.execute("SELECT * FROM news WHERE date LIKE ?", (s,))
+        else:
+            cursor = conn.execute("SELECT * FROM news")
+        res = []
+        for row in cursor:
+            res.append(row)
+        conn.close()
+        return res
+
+
+class Window:
+    def __init__(self):
+        self.find = Find()
 
     def print_with_scroll(self, threads):
         res = []
@@ -63,43 +83,11 @@ class Find:
         lb.pack(side=LEFT, fill=BOTH)
         sc.config(command=lb.yview)
 
-    def find_more_popular(self):
-        threads = self.find_db(None, None)
-        threads.sort(reverse=True, key=lambda thread: int(thread[6]))
-        self.print_with_scroll(threads[0:5])
-
-    def find_more_active(self):
-        threads = self.find_db(None, None)
-        threads.sort(reverse=True, key=lambda thread: int(thread[5]))
-        self.print_with_scroll(threads[0:5])
-
-    def find_db(self, en, category):
-        conn = lite.connect('test.db')
-        conn.text_factory = str
-        if en is not None:
-            s = "%" + en + "%"
-            if category == 'title':
-                cursor = conn.execute("SELECT * FROM hilos WHERE TITULO LIKE ?", (s,))
-            elif category == 'date':
-                cursor = conn.execute("SELECT * FROM hilos WHERE FECHA LIKE ?", (s,))
-        else:
-            cursor = conn.execute("SELECT * FROM hilos")
-        res = []
-        for row in cursor:
-            res.append(row)
-        conn.close()
-        return res
-
-
-class Window:
-    def __init__(self):
-        self.find = Find()
-
     def list(self):
-        self.find.print_with_scroll(self.find.find_db(None, None))
+        self.print_with_scroll(self.find.find_db(None, None))
 
-    def save(self):
-        c = self.find.find_url('https://www.meneame.net/')
+    def save(self, objects):
+        c = objects
         con = None
         try:
             # aux = [title, link, author, date_parse, content]
@@ -119,6 +107,24 @@ class Window:
             if con:
                 con.close()
 
+    def search_box(self):
+        window = Tk()
+        window.title("Configuracioón")
+        window.geometry('290x28')
+        lbl = Label(window, text="¿Cuántas páginas desea buscar?")
+        lbl.grid(column=0, row=0)
+        txt = Entry(window, width=10)
+        txt.grid(column=1, row=0)
+
+        def clicked():
+            self.save(self.find.find_url('https://www.meneame.net/', txt.get()))
+            window.destroy()
+
+        btn = Button(window, text="Aceptar", command=clicked)
+        btn.grid(column=2, row=0)
+
+        window.mainloop()
+
     def create_search_box(self, question, category):
         find = self.find
 
@@ -128,25 +134,24 @@ class Window:
         en = Entry(v)
 
         def find_aux(entry):
-            if category == 'title':
-                self.find.print_with_scroll(find.find_db(en.get(), 'title'))
-            else:
-                self.find.print_with_scroll(find.find_db(en.get(), 'date'))
+            if category == 'author':
+                self.print_with_scroll(find.find_db(en.get(), 'author'))
+            elif category == 'date':
+                self.print_with_scroll(find.find_db(en.get(), 'date'))
 
         en.bind("<Return>", find_aux)
         en.pack(side=LEFT)
 
         return en
 
-    def find_title(self):
-        self.create_search_box('Intoduzca título del tema', 'title')
+    def find_author(self):
+        self.create_search_box('Intoduzca el nombre del autor: ', 'author')
 
     def find_date(self):
-        self.create_search_box('Introduzca la fecha a buscar (dia/mes/año): ', 'date')
+        self.create_search_box('Introduzca la fecha a buscar (año-mes-día): ', 'date')
 
     def start(self):
         window = Window()
-        find = Find()
 
         root = Tk()
 
@@ -155,7 +160,7 @@ class Window:
 
         data_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Datos", menu=data_menu)
-        data_menu.add_command(label="Cargar", command=window.save)
+        data_menu.add_command(label="Cargar", command=window.search_box)
         data_menu.add_command(label="Mostrar", command=window.list)
         data_menu.add_separator()
 
@@ -166,13 +171,8 @@ class Window:
 
         find_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Buscar", menu=find_menu)
-        find_menu.add_command(label="Tema", command=window.find_title)
-        find_menu.add_command(label="Fecha", command=window.find_date)
-
-        estadistics_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Estadísticas", menu=estadistics_menu)
-        estadistics_menu.add_command(label="Temas más populares", command=find.find_more_popular)
-        estadistics_menu.add_command(label="Temas más activos", command=find.find_more_active)
+        find_menu.add_command(label="Por nombre de autor", command=window.find_author)
+        find_menu.add_command(label="Por fecha", command=window.find_date)
 
         root.mainloop()
 
