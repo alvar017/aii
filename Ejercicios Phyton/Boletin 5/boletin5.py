@@ -16,6 +16,17 @@ class Find:
         soup = BeautifulSoup(page, 'html.parser')
         return soup
 
+    def find_url(self, url, number_of_pages_to_find):
+        soup = self.find_url_aux(url)
+        pages_query = soup.find("div", {"class": "pages margin"}).findAll("a")
+        links_pages = []
+        for i in range(int(number_of_pages_to_find)):
+            links_pages.append(url + pages_query[i].get('href'))
+        res = []
+        for page in links_pages:
+            res.extend(self.find_data(page))
+        return res
+
     def find_data(self, link):
         res = []
         page = self.find_url_aux(link)
@@ -29,17 +40,6 @@ class Find:
             content = news[i].find("div", {"class": "news-content"}).text
             aux = [title, link, author, date_parse, content]
             res.append(aux)
-        return res
-
-    def find_url(self, url, number_of_pages_to_find):
-        soup = self.find_url_aux(url)
-        pages_query = soup.find("div", {"class": "pages margin"}).findAll("a")
-        links_pages = []
-        for i in range(int(number_of_pages_to_find)):
-            links_pages.append(url + pages_query[i].get('href'))
-        res = []
-        for page in links_pages:
-            res.extend(self.find_data(page))
         return res
 
     def find_db(self, en, category):
@@ -66,7 +66,7 @@ class Window:
 
     def print_with_scroll(self, threads):
         res = []
-        # Recuerda el orden: thread -> id, title, link, author, date, answers, visits
+        # Order: thread -> id, title, link, author, date, answers, visits
         for thread in threads:
             aux = ['Título: ' + thread[1] + '\n', 'Autor: : ' + thread[3] + '\n', 'Fecha: ' + thread[4] + '\n', '\n']
             res.append(aux)
@@ -107,31 +107,40 @@ class Window:
             if con:
                 con.close()
 
-    def search_box(self, selection):
-
-        def search_pages():
-            self.save(self.find.find_url('https://www.meneame.net/', txt.get()))
+    def search_aux(self, message, objects, window):
+        if len(objects) > 0:
+            self.print_with_scroll(objects)
             window.destroy()
+        else:
+            messagebox.showinfo(message=message, title="Aviso")
+
+    def search_box(self, selection):
+        def search_pages():
+            if int(txt.get()) < 5:
+                self.save(self.find.find_url('https://www.meneame.net/', txt.get()))
+                window.destroy()
+            else:
+                messagebox.showinfo(message="El número máximo de páginas es 5", title="Aviso")
 
         def search_author():
-            self.print_with_scroll(self.find.find_db(txt.get(), 'author'))
-            window.destroy()
+            authors = self.find.find_db(txt.get(), 'author')
+            self.search_aux('Ninguna noticia de ese autor ha sido encontrada', authors, window)
 
         def search_by_date():
-            self.print_with_scroll(self.find.find_db(txt.get(), 'date'))
-            window.destroy()
+            news = self.find.find_db(txt.get(), 'date')
+            self.search_aux('Ninguna noticia con esa fecha ha sido encontrada', news, window)
 
         window = Tk()
         window.title("Configuración")
         if selection == 'pages':
             question = 'Introduzca el número de páginas que desea buscar'
-            btn = Button(window, text="Aceptar", command=search_pages)
+            btn = Button(window, text="Buscar", command=search_pages)
         elif selection == 'author':
             question = '¿Cuál es el nombre del autor a buscar?'
-            btn = Button(window, text="Aceptar", command=search_author)
+            btn = Button(window, text="Buscar", command=search_author)
         else:  # selection == 'date'
             question = 'Introduzca la fecha a buscar, siguiendo el formato: yyyy-mm-dd'
-            btn = Button(window, text="Aceptar", command=search_by_date)
+            btn = Button(window, text="Buscar", command=search_by_date)
 
         lbl = Label(window, text=question)
         lbl.pack(side=LEFT)
@@ -140,21 +149,12 @@ class Window:
         btn.pack(side=LEFT)
         window.mainloop()
 
-    def find_author(self):
-        self.create_search_box('Intoduzca el nombre del autor: ', 'author')
-
-    def find_date(self):
-        self.create_search_box('Introduzca la fecha a buscar (año-mes-día): ', 'date')
-
     def start(self):
-
         def close_window():
             root.destroy()
 
         window = Window()
-
         root = Tk()
-
         menubar = Menu(root)
         root.config(menu=menubar)
 
