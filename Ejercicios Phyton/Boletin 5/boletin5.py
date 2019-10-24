@@ -107,42 +107,39 @@ class Window:
             if con:
                 con.close()
 
-    def search_box(self):
-        window = Tk()
-        window.title("Configuracioón")
-        window.geometry('290x28')
-        lbl = Label(window, text="¿Cuántas páginas desea buscar?")
-        lbl.grid(column=0, row=0)
-        txt = Entry(window, width=10)
-        txt.grid(column=1, row=0)
+    def search_box(self, selection):
 
-        def clicked():
+        def search_pages():
             self.save(self.find.find_url('https://www.meneame.net/', txt.get()))
             window.destroy()
 
-        btn = Button(window, text="Aceptar", command=clicked)
-        btn.grid(column=2, row=0)
+        def search_author():
+            self.print_with_scroll(self.find.find_db(txt.get(), 'author'))
+            window.destroy()
 
+        def search_by_date():
+            self.print_with_scroll(self.find.find_db(txt.get(), 'date'))
+            self.save(self.find.find_url('https://www.meneame.net/', txt.get()))
+            window.destroy()
+
+        window = Tk()
+        window.title("Configuración")
+        if selection == 'pages':
+            question = 'Introduzca el número de páginas que desea buscar'
+            btn = Button(window, text="Aceptar", command=search_pages)
+        elif selection == 'author':
+            question = '¿Cuál es el nombre del autor a buscar?'
+            btn = Button(window, text="Aceptar", command=search_author)
+        else:  # selection == 'date'
+            question = 'Introduzca la fecha a buscar, siguiendo el formato: yyyy-mm-dd'
+            btn = Button(window, text="Aceptar", command=search_by_date)
+
+        lbl = Label(window, text=question)
+        lbl.pack(side=LEFT)
+        txt = Entry(window)
+        txt.pack(side=LEFT)
+        btn.pack(side=LEFT)
         window.mainloop()
-
-    def create_search_box(self, question, category):
-        find = self.find
-
-        v = Toplevel()
-        lb = Label(v, text=question)
-        lb.pack(side=LEFT)
-        en = Entry(v)
-
-        def find_aux(entry):
-            if category == 'author':
-                self.print_with_scroll(find.find_db(en.get(), 'author'))
-            elif category == 'date':
-                self.print_with_scroll(find.find_db(en.get(), 'date'))
-
-        en.bind("<Return>", find_aux)
-        en.pack(side=LEFT)
-
-        return en
 
     def find_author(self):
         self.create_search_box('Intoduzca el nombre del autor: ', 'author')
@@ -151,6 +148,19 @@ class Window:
         self.create_search_box('Introduzca la fecha a buscar (año-mes-día): ', 'date')
 
     def start(self):
+
+        def close_window():
+            root.destroy()
+
+        def search_pages():
+            self.search_box('pages')
+
+        def search_author():
+            self.search_box('author')
+
+        def search_by_date():
+            self.search_box('date')
+
         window = Window()
 
         root = Tk()
@@ -160,19 +170,15 @@ class Window:
 
         data_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Datos", menu=data_menu)
-        data_menu.add_command(label="Cargar", command=window.search_box)
+        data_menu.add_command(label="Cargar", command=search_pages)
         data_menu.add_command(label="Mostrar", command=window.list)
         data_menu.add_separator()
-
-        def close_window():
-            root.destroy()
-
         data_menu.add_command(label="Salir", command=close_window)
 
         find_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Buscar", menu=find_menu)
-        find_menu.add_command(label="Por nombre de autor", command=window.find_author)
-        find_menu.add_command(label="Por fecha", command=window.find_date)
+        find_menu.add_command(label="Por nombre de autor", command=search_author)
+        find_menu.add_command(label="Por fecha", command=search_by_date)
 
         root.mainloop()
 
