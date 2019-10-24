@@ -119,7 +119,6 @@ class Window:
 
         def search_by_date():
             self.print_with_scroll(self.find.find_db(txt.get(), 'date'))
-            self.save(self.find.find_url('https://www.meneame.net/', txt.get()))
             window.destroy()
 
         window = Tk()
@@ -152,15 +151,6 @@ class Window:
         def close_window():
             root.destroy()
 
-        def search_pages():
-            self.search_box('pages')
-
-        def search_author():
-            self.search_box('author')
-
-        def search_by_date():
-            self.search_box('date')
-
         window = Window()
 
         root = Tk()
@@ -170,15 +160,15 @@ class Window:
 
         data_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Datos", menu=data_menu)
-        data_menu.add_command(label="Cargar", command=search_pages)
+        data_menu.add_command(label="Cargar", command=lambda: self.search_box('pages'))
         data_menu.add_command(label="Mostrar", command=window.list)
         data_menu.add_separator()
         data_menu.add_command(label="Salir", command=close_window)
 
         find_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Buscar", menu=find_menu)
-        find_menu.add_command(label="Por nombre de autor", command=search_author)
-        find_menu.add_command(label="Por fecha", command=search_by_date)
+        find_menu.add_command(label="Por nombre de autor", command=lambda: self.search_box('author'))
+        find_menu.add_command(label="Por fecha", command=lambda: self.search_box('date'))
 
         root.mainloop()
 
