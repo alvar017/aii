@@ -33,13 +33,13 @@ class Find:
         res = []
         page = self.find_url_aux(link)
         news = page.findAll("div", {"class": "news-summary"})
-        for i in range(len(news)):
-            title = news[i].find("h2").find("a").text
-            link = news[i].find("h2").find("a").get('href')
-            author = news[i].find("div", {"class": "news-submitted"}).findAll("a")[1].text
-            date = int(news[i].find("span", {"class": "ts visible"}).get('data-ts'))
+        for new in news:
+            title = new.find("h2").find("a").text
+            link = new.find("h2").find("a").get('href')
+            author = new.find("div", {"class": "news-submitted"}).findAll("a")[1].text
+            date = int(new.find("span", {"class": "ts visible"}).get('data-ts'))
             date_parse = datetime.fromtimestamp(date)
-            content = news[i].find("div", {"class": "news-content"}).text
+            content = new.find("div", {"class": "news-content"}).text
             aux = [title, link, author, date_parse, content]
             res.append(aux)
         return res
@@ -92,7 +92,6 @@ class Window:
 
     # Guarda el conjunto de datos pasados como parámetro
     def save(self, objects):
-        c = objects
         con = None
         try:
             # aux = [title, link, author, date_parse, content]
@@ -101,9 +100,11 @@ class Window:
                 cur = con.cursor()
                 cur.execute("DROP TABLE IF EXISTS news")
                 cur.execute("CREATE TABLE news(ID INT, TITLE TEXT, LINK TEXT, AUTHOR TEXT, DATE TEXT, CONTENT TEXT)")
-                for i in range(len(c)):
-                    cur.execute("INSERT INTO news VALUES (?, ?, ?, ?, ?, ?)", (i, c[i][0], c[i][1], c[i][2], c[i][3], c[i][4]))
-                messagebox.showinfo(message="BD creada correctamente con " + str(len(c)) + " respuestas", title="Aviso")
+                i = 0
+                for obj in objects:
+                    cur.execute("INSERT INTO news VALUES (?, ?, ?, ?, ?, ?)", (i, obj[0], obj[1], obj[2], obj[3], obj[4]))
+                    i = i + 1
+                messagebox.showinfo(message="BD creada correctamente con " + str(len(objects)) + " respuestas", title="Aviso")
         except lite.Error as e:
             print("Error {}:".format(e.args[0]))
             messagebox.showinfo(message="Se ha producido un error", title="Aviso")
