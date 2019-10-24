@@ -8,7 +8,7 @@ import sys
 
 
 class Find:
-
+    # Devuelve un objeto beautifulsoup de la URL dada
     def find_url_aux(self, url):
         f = request.urlopen(url)
         page = f.read().decode(f.headers.get_content_charset())
@@ -16,17 +16,19 @@ class Find:
         soup = BeautifulSoup(page, 'html.parser')
         return soup
 
-    def find_url(self, url, number_of_pages_to_find):
+    # Dada una URL devuelve todas las noticias de una URL (teniendo en cuenta el número de páginas solicitadas por el usuario)
+    def find_url(self, url, pages_number):
         soup = self.find_url_aux(url)
         pages_query = soup.find("div", {"class": "pages margin"}).findAll("a")
         links_pages = []
-        for i in range(int(number_of_pages_to_find)):
+        for i in range(int(pages_number)):
             links_pages.append(url + pages_query[i].get('href'))
         res = []
         for page in links_pages:
             res.extend(self.find_data(page))
         return res
 
+    # Busca los datos solicitados por el enunciado y los devuelve en una lista
     def find_data(self, link):
         res = []
         page = self.find_url_aux(link)
@@ -42,6 +44,7 @@ class Find:
             res.append(aux)
         return res
 
+    # Búsqueda en la base de datos en función de una palabra clave (en) y una categoría
     def find_db(self, en, category):
         conn = lite.connect('test.db')
         conn.text_factory = str
@@ -61,9 +64,9 @@ class Find:
 
 
 class Window:
-    def __init__(self):
-        self.find = Find()
+    find = Find()
 
+    # Dado un conjunto de noticias devuelve una listbox con estas
     def print_with_scroll(self, threads):
         res = []
         # Order: thread -> id, title, link, author, date, answers, visits
@@ -83,9 +86,11 @@ class Window:
         lb.pack(side=LEFT, fill=BOTH)
         sc.config(command=lb.yview)
 
+    # Crea una listbox con todas las noticias de la listbox
     def list(self):
         self.print_with_scroll(self.find.find_db(None, None))
 
+    # Guarda el conjunto de datos pasados como parámetro
     def save(self, objects):
         c = objects
         con = None
@@ -107,6 +112,7 @@ class Window:
             if con:
                 con.close()
 
+    # Crea una listbox en caso de encontrar resultados, un aviso en caso de no encontrar nada
     def search_aux(self, message, objects, window):
         if len(objects) > 0:
             self.print_with_scroll(objects)
@@ -114,39 +120,37 @@ class Window:
         else:
             messagebox.showinfo(message=message, title="Aviso")
 
+    # Crea un cuadro de búsqueda en función del tipo elegido
     def search_box(self, selection):
-        def search_pages():
-            if int(txt.get()) < 5:
-                self.save(self.find.find_url('https://www.meneame.net/', txt.get()))
-                window.destroy()
+        def search():
+            if selection == 'pages':
+                if 0 < int(entry.get()) < 5:
+                    self.save(self.find.find_url('https://www.meneame.net/', entry.get()))
+                    window.destroy()
+                else:
+                    messagebox.showinfo(message="El número de páginas debe estar entre 1 y 4", title="Aviso")
+            elif selection == 'author':
+                authors = self.find.find_db(entry.get(), 'author')
+                self.search_aux('Ninguna noticia de ese autor ha sido encontrada', authors, window)
             else:
-                messagebox.showinfo(message="El número máximo de páginas es 5", title="Aviso")
-
-        def search_author():
-            authors = self.find.find_db(txt.get(), 'author')
-            self.search_aux('Ninguna noticia de ese autor ha sido encontrada', authors, window)
-
-        def search_by_date():
-            news = self.find.find_db(txt.get(), 'date')
-            self.search_aux('Ninguna noticia con esa fecha ha sido encontrada', news, window)
+                news = self.find.find_db(entry.get(), 'date')
+                self.search_aux('Ninguna noticia con esa fecha ha sido encontrada', news, window)
 
         window = Tk()
         window.title("Configuración")
         if selection == 'pages':
             question = 'Introduzca el número de páginas que desea buscar'
-            btn = Button(window, text="Buscar", command=search_pages)
         elif selection == 'author':
             question = '¿Cuál es el nombre del autor a buscar?'
-            btn = Button(window, text="Buscar", command=search_author)
         else:  # selection == 'date'
             question = 'Introduzca la fecha a buscar, siguiendo el formato: yyyy-mm-dd'
-            btn = Button(window, text="Buscar", command=search_by_date)
 
-        lbl = Label(window, text=question)
-        lbl.pack(side=LEFT)
-        txt = Entry(window)
-        txt.pack(side=LEFT)
-        btn.pack(side=LEFT)
+        button = Button(window, text="Buscar", command=search)
+        label = Label(window, text=question)
+        label.pack(side=LEFT)
+        entry = Entry(window)
+        entry.pack(side=LEFT)
+        button.pack(side=LEFT)
         window.mainloop()
 
     def start(self):
@@ -155,6 +159,7 @@ class Window:
 
         window = Window()
         root = Tk()
+        root.geometry("198x0")
         menubar = Menu(root)
         root.config(menu=menubar)
 
