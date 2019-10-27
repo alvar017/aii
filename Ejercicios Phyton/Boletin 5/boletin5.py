@@ -54,6 +54,10 @@ class Find:
                 cursor = conn.execute("SELECT * FROM news WHERE author LIKE ?", (s,))
             elif category == 'date':
                 cursor = conn.execute("SELECT * FROM news WHERE date LIKE ?", (s,))
+            elif category == 'author_elements':
+                cursor = conn.execute("SELECT AUTHOR FROM news")
+            elif category == 'dates_elements':
+                cursor = conn.execute("SELECT DATE FROM news")
         else:
             cursor = conn.execute("SELECT * FROM news")
         res = []
@@ -112,6 +116,42 @@ class Window:
         finally:
             if con:
                 con.close()
+
+    # Obtiene el conjunto de elementos a seleccionar en función de la categoría
+    def spin_box_aux(self, category):
+        res = []
+        if category == 'author':
+            aux = self.find.find_db('', 'author_elements')
+            for e in aux:
+                if e not in res:
+                    res.append(e)
+        if category == 'date':
+            aux = self.find.find_db('', 'dates_elements')
+            for e in aux:
+                if e[0] not in res:
+                    res.append(e[0])
+        res.sort()
+        return res
+
+    # Crea una spin box con los elementos de la categoria dada
+    # Para que funcoine hay que añadir en spin_box_aux y en find_db los correspondientes if y elseif para ajustar la configuración
+    def spin_box(self, category):
+
+        # Búsqueda final de elemnto, cogemos el elemento seleccionado por el usuario
+        def search():
+            res = self.find.find_db(lb.get(), category)
+            self.print_with_scroll(res)
+
+        elements = self.spin_box_aux(category)
+        if len(elements) > 0:
+            master = Tk()
+            lb = Spinbox(master, values=elements, width=10)
+            lb.pack()
+            button = Button(master, text='Buscar', command=search)
+            button.pack(side=LEFT)
+            master.mainloop()
+        else:
+            messagebox.showinfo(message='No hay elementos suficientes para realizar la búsqueda', title="Aviso")
 
     # Crea una listbox en caso de encontrar resultados, un aviso en caso de no encontrar nada
     def search_aux(self, message, objects, window):
@@ -173,7 +213,7 @@ class Window:
 
         find_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Buscar", menu=find_menu)
-        find_menu.add_command(label="Por nombre de autor", command=lambda: self.search_box('author'))
+        find_menu.add_command(label="Por nombre de autor", command=lambda: self.spin_box('author'))
         find_menu.add_command(label="Por fecha", command=lambda: self.search_box('date'))
 
         root.mainloop()
