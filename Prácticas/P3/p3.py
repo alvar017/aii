@@ -102,10 +102,24 @@ def add_doc(writer, answer):
 def ventana_principal():
     dirindex="C:/Users/Alvaro/OneDrive - UNIVERSIDAD DE SEVILLA/AII/aii/Ejercicios Phyton/Boletin 6/Index"
     top = Tk()
-    indexar = Button(top, text="Indexar", command = lambda: apartado_a(dirindex))
-    indexar.pack(side = TOP)
-    Buscar = Button(top, text="Buscar por Rtte", command = lambda: apartado_b(dirindex))
-    Buscar.pack(side = TOP)
+    top.geometry("198x0")
+
+    def close_window():
+        top.destroy()
+
+    menubar = Menu(top)
+    top.config(menu=menubar)
+
+    data_menu = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Inicio", menu=data_menu)
+    data_menu.add_command(label="Indexar", command=lambda: apartado_a(dirindex))
+    data_menu.add_separator()
+    data_menu.add_command(label="Salir", command=close_window)
+
+    data_menu = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Buscar", menu=data_menu)
+    data_menu.add_command(label="Título", command=lambda: apartado_b(dirindex))
+
     top.mainloop()
 
 
