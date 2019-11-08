@@ -51,12 +51,12 @@ def apartado_a(dirindex):
     writer.commit()
 
     
-def apartado_b(dirindex):
+def apartado_b(dirindex, search):
     def mostrar_lista(event):
         lb.delete(0,END)   #borra toda la lista
         ix=open_dir(dirindex)      
         with ix.searcher() as searcher:
-            query = QueryParser("title", ix.schema).parse(str(en.get()))
+            query = QueryParser(search, ix.schema).parse(str(en.get()))
             results = searcher.search(query)
             for r in results:
                 lb.insert(END,r['title'])
@@ -65,10 +65,16 @@ def apartado_b(dirindex):
                 lb.insert(END,'')
     
     v = Toplevel()
-    v.title("Busqueda por rttes")
+    if (search == 'title'):
+        ref = 'Introduzca el título a buscar'
+    elif (search == 'author'):
+        ref = 'Introduzca el nombre del autor'
+    else:
+        ref = 'Búsqueda'
+    v.title('Búsqueda')
     f =Frame(v)
     f.pack(side=TOP)
-    l = Label(f, text="Introduzca el correo del rtte:")
+    l = Label(f, text=ref)
     l.pack(side=LEFT)
     en = Entry(f)
     en.bind("<Return>", mostrar_lista)
@@ -118,7 +124,8 @@ def ventana_principal():
 
     data_menu = Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Buscar", menu=data_menu)
-    data_menu.add_command(label="Título", command=lambda: apartado_b(dirindex))
+    data_menu.add_command(label="Título", command=lambda: apartado_b(dirindex, 'title'))
+    data_menu.add_command(label="Autor", command=lambda: apartado_b(dirindex, 'author'))
 
     top.mainloop()
 
