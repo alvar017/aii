@@ -17,32 +17,31 @@ class Find:
         return soup
 
     # Dada una URL devuelve todas las noticias de una URL (teniendo en cuenta el número de páginas solicitadas por el usuario)
-    def find_url(self, url, pages_number):
-        soup = self.find_url_aux(url)
-        pages_query = soup.find("div", {"class": "pages margin"}).findAll("a")
-        links_pages = []
-        for i in range(int(pages_number)):
-            links_pages.append(url + pages_query[i].get('href'))
+    def find_url(self):
+        links_pages = ['https://www.elseptimoarte.net/estrenos/1/', 'https://www.elseptimoarte.net/estrenos/2/']
         res = []
         for page in links_pages:
             res.extend(self.find_data(page))
         return res
 
     # Busca los datos solicitados por el enunciado y los devuelve en una lista
-    def find_data(self, link):
+    def find_data(self, link1):
         res = []
-        page = self.find_url_aux(link)
-        news = page.findAll("div", {"class": "news-summary"})
+        page = self.find_url_aux(link1)
+        news = page.find("ul", class_ = "elements").findAll("li")
         for new in news:
-            title = new.find("h2").find("a").text
-            link = new.find("h2").find("a").get('href')
-            author = new.find("div", {"class": "news-submitted"}).findAll("a")[1].text
-            date = int(new.find("span", {"class": "ts visible"}).get('data-ts'))
-            date_parse = datetime.fromtimestamp(date)
-            content = new.find("div", {"class": "news-content"}).text
-            aux = [title, link, author, date_parse, content]
+            title = new.find("a").text
+            link = 'https://www.elseptimoarte.net/' + new.find("a").get('href')
+            date = new.findAll("p")[1].text
+            g = self.find_url_aux(link)
+            genero = g.find("p",{"class":"categorias"}).findAll('a')
+            aux2 = ""
+            for gen in genero:
+                aux2 = aux2 + ", " +gen.text
+            aux = [title, link, date, aux2]
             res.append(aux)
         return res
+
 
     # Búsqueda en la base de datos en función de una palabra clave (en) y una categoría
     def find_db(self, en, category):
@@ -54,10 +53,14 @@ class Find:
                 cursor = conn.execute("SELECT * FROM news WHERE author LIKE ?", (s,))
             elif category == 'date':
                 cursor = conn.execute("SELECT * FROM news WHERE date LIKE ?", (s,))
+            elif category == 'genero':
+                cursor = conn.execute("SELECT * FROM news WHERE GENERO LIKE ?", (s,))
             elif category == 'author_elements':
                 cursor = conn.execute("SELECT AUTHOR FROM news")
             elif category == 'dates_elements':
                 cursor = conn.execute("SELECT DATE FROM news")
+            elif category == 'genero_elements':
+                cursor = conn.execute("SELECT GENERO FROM news")
         else:
             cursor = conn.execute("SELECT * FROM news")
         res = []
@@ -103,10 +106,10 @@ class Window:
             with con:
                 cur = con.cursor()
                 cur.execute("DROP TABLE IF EXISTS news")
-                cur.execute("CREATE TABLE news(ID INT, TITLE TEXT, LINK TEXT, AUTHOR TEXT, DATE TEXT, CONTENT TEXT)")
+                cur.execute("CREATE TABLE news(ID INT, TITLE TEXT, LINK TEXT, DATE TEXT, GENERO TEXT)")
                 i = 0
                 for obj in objects:
-                    cur.execute("INSERT INTO news VALUES (?, ?, ?, ?, ?, ?)", (i, obj[0], obj[1], obj[2], obj[3], obj[4]))
+                    cur.execute("INSERT INTO news VALUES (?, ?, ?, ?, ?)", (i, obj[0], obj[1], obj[2], obj[3]))
                     i = i + 1
                 messagebox.showinfo(message="BD creada correctamente con " + str(len(objects)) + " respuestas", title="Aviso")
         except lite.Error as e:
@@ -130,7 +133,21 @@ class Window:
             for e in aux:
                 if e[0] not in res:
                     res.append(e[0])
+        if category == 'genero':
+            aux = self.find.find_db('', 'genero_elements')
+            for e in aux:
+                if ',' in e[0]:
+                    aux2 = [x.strip() for x in e[0].split(',')]
+                    for b in aux2:
+                        if b not in res:
+                            res.append(b)
+                else:
+                    e = e[0].replace(",", "")
+                    e = e.trim()
+                    if e not in res and e != '':
+                        res.append(e)
         res.sort()
+        res.remove(res[0])
         return res
 
     # Crea una spin box con los elementos de la categoria dada
@@ -166,7 +183,7 @@ class Window:
         def search():
             if selection == 'pages':
                 if 0 < int(entry.get()) < 5:
-                    self.save(self.find.find_url('https://www.meneame.net/', entry.get()))
+                    self.save(self.find)
                     window.destroy()
                 else:
                     messagebox.showinfo(message="El número de páginas debe estar entre 1 y 4", title="Aviso")
@@ -184,7 +201,7 @@ class Window:
         elif selection == 'author':
             question = '¿Cuál es el nombre del autor a buscar?'
         else:  # selection == 'date'
-            question = 'Introduzca la fecha a buscar, siguiendo el formato: yyyy-mm-dd'
+            question = 'Introduzca la fecha a buscar, siguiendo el formato: dd-mm-aaaa'
 
         button = Button(window, text="Buscar", command=search)
         label = Label(window, text=question)
@@ -206,15 +223,14 @@ class Window:
 
         data_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Datos", menu=data_menu)
-        data_menu.add_command(label="Cargar", command=lambda: self.search_box('pages'))
-        data_menu.add_command(label="Mostrar", command=window.list)
+        data_menu.add_command(label="Cargar", command=lambda: self.save(self.find.find_url()))
         data_menu.add_separator()
         data_menu.add_command(label="Salir", command=close_window)
 
         find_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Buscar", menu=find_menu)
-        find_menu.add_command(label="Por nombre de autor", command=lambda: self.spin_box('author'))
         find_menu.add_command(label="Por fecha", command=lambda: self.search_box('date'))
+        find_menu.add_command(label="Por nombre de autor", command=lambda: self.spin_box('genero'))
 
         root.mainloop()
 
