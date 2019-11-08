@@ -19,6 +19,7 @@ En los siguientes enlaces se muestran turoriales muy útiles para el desarrollo 
 
 > **_[Documentación de Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)_** BeatifulSoup para su uso en scraping.
 
+> **_[Documentación de Whoosh](https://whoosh.readthedocs.io/en/latest/)_** Documentación de Whoosh.
 
     Álvaro de la Flor Bonilla - alvdebon@alum.us.es
     Escuela Técnica Superior de Ingeniería Informática (ETSII), Universidad de Sevilla
