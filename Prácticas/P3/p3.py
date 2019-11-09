@@ -33,6 +33,29 @@ def find_url(url):
     return res
 
 
+def find_url_response(url):
+    res = []
+    f = request.urlopen(url)
+    page = f.read().decode(f.headers.get_content_charset())
+    f.close()
+
+    soup = BeautifulSoup(page, 'html.parser')
+    threads = soup.findAll("li", {"class": "threadbit"})
+    for i in range(len(threads)):
+        title = threads[i].find("a", {"class": "title"}).get('title')
+        link = 'https://foros.derecho.com/' + threads[i].find("a", {"class": "title"}).get('href')
+        author = threads[i].find("a", {"class": "username understate"}).next
+        date = threads[i].find("a", {"class": "username understate"}).nextSibling.string[2:]
+        date_parse = dateutil.parser.parse(date).strftime("%d/%m/%Y")
+        answers_and_visits = threads[i].findAll("li")
+        answers = answers_and_visits[0].text[-1:]
+        visits = answers_and_visits[1].text[-1:]
+
+        aux = [title, link, author, date_parse, answers, visits]
+        res.append(aux)
+    return res
+
+
 def apartado_a(dirindex):
     if not os.path.exists(dirindex):
         os.mkdir(dirindex)
@@ -42,7 +65,9 @@ def apartado_a(dirindex):
     i=0
     url = "https://foros.derecho.com/foro/34-Derecho-Inmobiliario"
     answers = find_url(url)
+    responses = []
     for answer in answers:
+        responses.append(find_url_response(answer[1]))
         if not os.path.isdir(url+answer[0]):
             add_doc(writer, answer)
             i+=1
