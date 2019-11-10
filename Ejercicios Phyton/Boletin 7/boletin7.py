@@ -3,12 +3,14 @@ from tkinter import *
 from tkinter import messagebox
 import os
 from whoosh.index import create_in,open_dir
-from whoosh.fields import Schema, TEXT, KEYWORD
+from whoosh.fields import Schema, TEXT, KEYWORD, DATETIME
 from whoosh.qparser import MultifieldParser
+from whoosh.qparser import QueryParser
+from whoosh.qparser.dateparse import DateParserPlugin
 
 
 def get_schema_correo():
-    return Schema(remitente=TEXT(stored=True), destinatarios=KEYWORD(stored=True), fecha=TEXT(stored=True),
+    return Schema(remitente=TEXT(stored=True), destinatarios=KEYWORD(stored=True), fecha=DATETIME(stored=True),
                   asunto=TEXT(stored=True), contenido=TEXT(stored=True))
 
 
@@ -75,8 +77,14 @@ def search(types, text, dir_index, to_save):
     res = []
     ix = open_dir(dir_index)
     with ix.searcher() as searcher:
-        query = MultifieldParser(types, ix.schema).parse(text)
-        results = searcher.search(query)
+        if len(types) == 1 and types[0] == 'fecha':
+            qp = MultifieldParser("fecha", ix.schema)
+            qp.add_plugin(DateParserPlugin(free=True))
+            q = qp.parse(u"date:" + text)
+        else:
+            qp = MultifieldParser(types, ix.schema)
+            q = qp.parse(text)
+        results = searcher.search(q)
         for r in results:
             aux = []
             for element in to_save:
@@ -115,6 +123,36 @@ def apartado_a(dir_index):
     lb.pack(side=BOTTOM, fill = BOTH)
     sc.config(command = lb.yview)
 
+
+def apartado_b(dir_index):
+    def mostrar_lista(event):
+        lb.delete(0,END)   #borra toda la lista
+        busqueda1 = search(["fecha"], str(en.get()), dir_index + str(1), ["remitente", "destinatarios", "asunto"])
+        for elemento in busqueda1:
+            correos = elemento[0].split(" ")
+            for correo in correos:
+                nombres = search(["email"], str(correo), dir_index + str(2), ["nombre"])
+                i = 1
+                for nombre in nombres:
+                    lb.insert(END, "Nombre (" + str(i) + "): " + str(nombre[0]))
+                    i = i + 1
+                lb.insert(END, "remitente")
+        lb.insert(END, " ")
+
+    v = Toplevel()
+    v.title("Busqueda por asunto y remitente")
+    f =Frame(v)
+    f.pack(side=TOP)
+    l = Label(f, text=" Introduzca el texto a buscar:")
+    l.pack(side=LEFT)
+    en = Entry(f)
+    en.bind("<Return>", mostrar_lista)
+    en.pack(side=LEFT)
+    sc = Scrollbar(v)
+    sc.pack(side=RIGHT, fill=Y)
+    lb = Listbox(v, yscrollcommand=sc.set)
+    lb.pack(side=BOTTOM, fill = BOTH)
+    sc.config(command = lb.yview)
     
 def ventana_principal():
     dir_mails = "C:/Users/Alvaro/OneDrive - UNIVERSIDAD DE SEVILLA/AII/aii/Ejercicios Phyton/Boletin 7/Correos"
@@ -123,8 +161,10 @@ def ventana_principal():
     top = Tk()
     indexar = Button(top, text="Indexar", command = lambda: index(dir_mails, dir_contacts, dir_index))
     indexar.pack(side = TOP)
-    Buscar = Button(top, text="Búsqueda por asunto o contenido", command = lambda: apartado_a(dir_index))
-    Buscar.pack(side = TOP)
+    Buscar1= Button(top, text="Búsqueda por asunto o contenido", command = lambda: apartado_a(dir_index))
+    Buscar1.pack(side = TOP)
+    Buscar2 = Button(top, text="Buscar correos posteriores a una fecha (YYYYMMDD)", command = lambda: apartado_b(dir_index))
+    Buscar2.pack(side = TOP)
     top.mainloop()
 
 
