@@ -155,9 +155,9 @@ def apartado_b(dir_index):
     sc.config(command = lb.yview)
     
 def ventana_principal():
-    dir_mails = "Correos"
-    dir_contacts = "Agenda"
-    dir_index = "Index"
+    dir_mails = "C:/Users/Alvaro/OneDrive - UNIVERSIDAD DE SEVILLA/AII/aii/Ejercicios Phyton/Boletin 7/Correos"
+    dir_contacts = "C:/Users/Alvaro/OneDrive - UNIVERSIDAD DE SEVILLA/AII/aii/Ejercicios Phyton/Boletin 7/Agenda"
+    dir_index = "C:/Users/Alvaro/OneDrive - UNIVERSIDAD DE SEVILLA/AII/aii/Ejercicios Phyton/Boletin 7/Index"
     top = Tk()
     indexar = Button(top, text="Indexar", command = lambda: index(dir_mails, dir_contacts, dir_index))
     indexar.pack(side = TOP)
