@@ -6,9 +6,11 @@ from bs4 import BeautifulSoup
 from urllib import request
 import os
 from datetime import datetime
+from whoosh import qparser
 from whoosh.index import create_in,open_dir
 from whoosh.fields import Schema, TEXT, KEYWORD, DATETIME
 from whoosh.qparser import QueryParser
+from whoosh.qparser import MultifieldParser
 
 
 def find_url(url):
@@ -80,26 +82,71 @@ def apartado_a(dirindex):
     writer.commit()
 
 
-def apartado_b(dirindex, search):
-    def mostrar_lista(event):
-        lb.delete(0,END)   #borra toda la lista
-        ix=open_dir(dirindex)      
-        with ix.searcher() as searcher:
-            query = QueryParser(search, ix.schema).parse(str(en.get()))
-            results = searcher.search(query)
-            for r in results:
-                lb.insert(END,r['title'])
-                lb.insert(END,r['author'])
-                lb.insert(END, r['date'])
-                lb.insert(END,'')
-    
-    v = Toplevel()
-    if (search == 'title'):
+def search_whoosh(types, text, dir_index, to_save, type_search):
+    res = []
+    ix = open_dir(dir_index)
+    with ix.searcher() as searcher:
+        if len(types) == 1 and types[0] == 'date':
+            if " " not in str(text):
+                myquery = '{' + text + 'TO]'
+            else:
+                date = text.split(" ")
+                date1 = datetime.strptime(date[0], '%d/%M/%Y').strftime('%Y%m%d')
+                date2 = datetime.strptime(date[1], '%d/%M/%Y').strftime('%Y%m%d')
+                myquery = '{' + date1 + 'TO' + date2 +']'
+            q = QueryParser("date", ix.schema).parse(myquery)
+        else:
+            if type_search == "and":
+                qp = MultifieldParser(types, ix.schema, group=qparser.AndGroup)
+            else:
+                qp = MultifieldParser(types, ix.schema)
+            q = qp.parse(text)
+        results = searcher.search(q)
+        for r in results:
+            aux = []
+            for element in to_save:
+                aux.append(r[element])
+            res.append(aux)
+        return res
+
+
+def config_search(dir_index, search):
+    if search == 'title':
         ref = 'Introduzca el título a buscar'
-    elif (search == 'author'):
-        ref = 'Introduzca el nombre del autor'
-    else:
-        ref = 'Búsqueda'
+    elif search == 'description':
+        ref = 'Introduzca el texto a buscar'
+    elif (search == 'date'):
+        ref = 'Introduzca período (dd/mm/yyyy dd/mm/yyyy)'
+    elif search == 'date':
+        ref = 'Introduzca período (dd/mm/yyyy dd/mm/yyyy)'
+
+    def mostrar_lista(event):
+        lb.delete(0, END)   #borra toda la lista
+        if (search == 'title'):
+            busqueda = search_whoosh(["title", "description"], str(en.get()), dir_index, ["category", "title", "date"], "and")
+            for resultado in busqueda:
+                lb.insert(END, resultado[0])
+                lb.insert(END, resultado[1])
+                lb.insert(END, resultado[2])
+                lb.insert(END, " ")
+        elif (search == 'description'):
+            busqueda = search_whoosh(["description"], str(en.get()), dir_index, ["title", "link", "description"], "and")
+            for resultado in busqueda:
+                lb.insert(END, resultado[0])
+                lb.insert(END, resultado[1])
+                lb.insert(END, resultado[2])
+                lb.insert(END, " ")
+        elif (search == 'date'):
+            busqueda = search_whoosh(["date"], str(en.get()), dir_index, ["category", "title", "date"], "and")
+            for resultado in busqueda:
+                lb.insert(END, resultado[0])
+                lb.insert(END, resultado[1])
+                lb.insert(END, resultado[2])
+                lb.insert(END, " ")
+        else:
+            ref = 'Búsqueda'
+
+    v = Toplevel()
     v.title('Búsqueda')
     f =Frame(v)
     f.pack(side=TOP)
@@ -112,7 +159,7 @@ def apartado_b(dirindex, search):
     sc.pack(side=RIGHT, fill=Y)
     lb = Listbox(v, yscrollcommand=sc.set)
     lb.pack(side=BOTTOM, fill = BOTH)
-    sc.config(command = lb.yview)    
+    sc.config(command = lb.yview)
 
 
 def ventana_principal():
@@ -134,8 +181,9 @@ def ventana_principal():
 
     data_menu = Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Buscar", menu=data_menu)
-    data_menu.add_command(label="Título", command=lambda: apartado_b(dirindex, 'title'))
-    data_menu.add_command(label="Autor", command=lambda: apartado_b(dirindex, 'author'))
+    data_menu.add_command(label="Título y Descripción", command=lambda: config_search(dirindex, 'title'))
+    data_menu.add_command(label="Fecha", command=lambda: config_search(dirindex, 'date'))
+    data_menu.add_command(label="Descripción", command=lambda: config_search(dirindex, 'description'))
 
     top.mainloop()
 
