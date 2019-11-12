@@ -64,7 +64,7 @@ def add_doc(writer, answer):
     writer.add_document(category=category, title=title, link=link, description=description, date=date)
 
 
-def apartado_a(dirindex):
+def index(dirindex):
     if not os.path.exists(dirindex):
         os.mkdir(dirindex)
 
@@ -124,27 +124,15 @@ def config_search(dir_index, search):
         lb.delete(0, END)   #borra toda la lista
         if (search == 'title'):
             busqueda = search_whoosh(["title", "description"], str(en.get()), dir_index, ["category", "title", "date"], "and")
-            for resultado in busqueda:
-                lb.insert(END, resultado[0])
-                lb.insert(END, resultado[1])
-                lb.insert(END, resultado[2])
-                lb.insert(END, " ")
         elif (search == 'description'):
             busqueda = search_whoosh(["description"], str(en.get()), dir_index, ["title", "link", "description"], "and")
-            for resultado in busqueda:
-                lb.insert(END, resultado[0])
-                lb.insert(END, resultado[1])
-                lb.insert(END, resultado[2])
-                lb.insert(END, " ")
         elif (search == 'date'):
             busqueda = search_whoosh(["date"], str(en.get()), dir_index, ["category", "title", "date"], "and")
-            for resultado in busqueda:
-                lb.insert(END, resultado[0])
-                lb.insert(END, resultado[1])
-                lb.insert(END, resultado[2])
-                lb.insert(END, " ")
-        else:
-            ref = 'Búsqueda'
+        for resultado in busqueda:
+            lb.insert(END, resultado[0])
+            lb.insert(END, resultado[1])
+            lb.insert(END, resultado[2])
+            lb.insert(END, " ")
 
     v = Toplevel()
     v.title('Búsqueda')
@@ -175,7 +163,7 @@ def ventana_principal():
 
     data_menu = Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Inicio", menu=data_menu)
-    data_menu.add_command(label="Indexar", command=lambda: apartado_a(dirindex))
+    data_menu.add_command(label="Indexar", command=lambda: index(dirindex))
     data_menu.add_separator()
     data_menu.add_command(label="Salir", command=close_window)
 
