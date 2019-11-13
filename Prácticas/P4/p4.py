@@ -88,12 +88,10 @@ def index(dir_index):
 
 
 def get_date_query_from_input(user_input):
-    my_query = '{' + user_input + 'TO]'
-    #date = user_input.split(" ")
-    #date1 = datetime.strptime(date[0], '%d/%M/%Y').strftime('%Y%m%d')
-    #date2 = datetime.strptime(date[1], '%d/%M/%Y').strftime('%Y%m%d')
-    #my_query = '{' + date1 + 'TO' + date2 + ']'
-    #my_query = "date:" + my_query
+    date = user_input.split(" ")
+    date1 = datetime.strptime(date[0], '%d/%M/%Y').strftime('%Y%M%d')
+    date2 = datetime.strptime(date[1], '%d/%M/%Y').strftime('%Y%M%d')
+    my_query = '{' + date1 + 'TO' + date2 + ']'
     return my_query
 
 
