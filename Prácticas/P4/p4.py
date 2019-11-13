@@ -6,51 +6,59 @@ from bs4 import BeautifulSoup
 from urllib import request
 import os
 from datetime import datetime
-from whoosh import qparser
 from whoosh.index import create_in,open_dir
 from whoosh.fields import Schema, TEXT, KEYWORD, DATETIME
 from whoosh.qparser import QueryParser
 from whoosh.qparser import MultifieldParser
 
 
-def find_url(url):
-    res = []
+def get_beautifulsoup(url):
     f = request.urlopen(url)
     page = f.read().decode(f.headers.get_content_charset())
     f.close()
+    return BeautifulSoup(page, 'html.parser')
 
-    soup = BeautifulSoup(page, 'html.parser')
+
+def find_url(url):
+    res = []
+    soup = get_beautifulsoup(url)
     threads = soup.find("div", {"class": "col-left"}).findAll("div", {"class": "news-card"})
     for t in threads:
-        title = t.find("a", {"class": "meta-title-link"}).next
+        title_aux = t.find("a", {"class": "meta-title-link"})
+        title = title_aux.text
         link_aux = t.find("figure", {"class": "thumbnail"}).find("img", {"class": "thumbnail-img"})
         if link_aux.get("data-src") is None:
             link = t.find("figure", {"class": "thumbnail"}).find("img", {"class": "thumbnail-img"}).get("src")
         else:
             link = t.find("figure", {"class": "thumbnail"}).find("img", {"class": "thumbnail-img"}).get("data-src")
-        categoria = t.find("div", {"class": "meta-category"}).next
-        descripcion = t.find("div", {"class": "meta-body"})
-        if descripcion != None:
-            descripcion = descripcion.text
+        category = t.find("div", {"class": "meta-category"}).next
+        description = t.find("div", {"class": "meta-body"})
+        if description is not None:
+            description = description.text
         else:
-            descripcion = ""
+            description = get_description(title_aux.get('href'))
         locale.setlocale(locale.LC_ALL, 'esp_esp')
         date_aux = str(t.find("div", {"class": "meta-date"}).next).split(",")[1].strip()
         date = datetime.strptime(date_aux, '%d de %B de %Y')
-        aux = [categoria, title, link, descripcion, date]
+        aux = [category, title, link, description, date]
         res.append(aux)
     return res
 
 
+def get_description(url):
+    soup = get_beautifulsoup("http://www.sensacine.com/" + url)
+    description = soup.find("p", {"class": "article-lead"}).text
+    return description
+
+
 def find_url_aux(url):
     res = []
-    pages = [1, 2, 3]
-    for i in pages:
+    for i in range(3):
         res.extend(find_url(url + "?page=" + str(i)))
     return res
 
 
-def get_schema_thread():
+def get_schema():
     return Schema(category=TEXT(stored=True), title=TEXT(stored=True), link=TEXT(stored=True), description=TEXT(stored=True), date=DATETIME(stored=True))
 
 
@@ -60,47 +68,76 @@ def add_doc(writer, answer):
     link = answer[2].strip()
     description = answer[3].strip()
     date = answer[4]
-
     writer.add_document(category=category, title=title, link=link, description=description, date=date)
 
 
-def index(dirindex):
-    if not os.path.exists(dirindex):
-        os.mkdir(dirindex)
-
-    ix = create_in(dirindex, schema=get_schema_thread())
+def index(dir_index):
+    if not os.path.exists(dir_index):
+        os.mkdir(dir_index)
+    ix = create_in(dir_index, schema=get_schema())
     writer = ix.writer()
     i = 0
     url = "http://www.sensacine.com/noticias/"
-    answers = find_url_aux(url)
-    for answer in answers:
-        if not os.path.isdir(url+answer[0]):
-            add_doc(writer, answer)
+    news = find_url_aux(url)
+    for new in news:
+        if not os.path.isdir(url+new[0]):
+            add_doc(writer, new)
             i += 1
-    messagebox.showinfo("Fin de indexado", "Se han indexado " + str(i) + " temas")
-            
+    messagebox.showinfo("Fin de indexado", "Se han indexado " + str(i) + " noticias")
     writer.commit()
 
 
-def search_whoosh(types, text, dir_index, to_save, type_search):
+def get_date_query_from_input(user_input):
+    my_query = '{' + user_input + 'TO]'
+    #date = user_input.split(" ")
+    #date1 = datetime.strptime(date[0], '%d/%M/%Y').strftime('%Y%m%d')
+    #date2 = datetime.strptime(date[1], '%d/%M/%Y').strftime('%Y%m%d')
+    #my_query = '{' + date1 + 'TO' + date2 + ']'
+    #my_query = "date:" + my_query
+    return my_query
+
+
+def get_query(schema, types, or_and, type_search, user_input):
+    if or_and == 'and' and len(types) > 1:
+        qp = QueryParser(types[0], schema)
+        i = 0
+        aux = " "
+        words = user_input.split(" ")
+        while i < len(types):
+            if type_search:
+                aux += str(types[i]) + ':"' + user_input + '" '
+            else:
+                for word in words:
+                    aux += str(types[i]) + ":" + word + " "
+            i += 1
+        user_input = aux
+    else:
+        if len(types) > 1:
+            qp = MultifieldParser(types, schema)
+        else:
+            qp = QueryParser(types[0], schema)
+    if type_search and or_and != "and":
+        q = qp.parse(f'"{user_input}"')
+    else:
+        q = qp.parse(user_input)
+    return q
+
+
+def search_whoosh(types, text, dir_index, to_save, or_and, type_search):
+    # types = en que columnas buscar
+    # text = parametro de búsqueda del usuario
+    # dir_index = directorio del índece
+    # to_save = parametros de la tabla que se deben devolver
+    # or_and = indica el tipico de búsqueda Multifieldparser, puede ser and ó or
+    # type_search = indica si debe ser una búsqueda de cadena exacto o de caracteres contenidos
     res = []
     ix = open_dir(dir_index)
     with ix.searcher() as searcher:
-        if len(types) == 1 and types[0] == 'date':
-            if " " not in str(text):
-                myquery = '{' + text + 'TO]'
-            else:
-                date = text.split(" ")
-                date1 = datetime.strptime(date[0], '%d/%M/%Y').strftime('%Y%m%d')
-                date2 = datetime.strptime(date[1], '%d/%M/%Y').strftime('%Y%m%d')
-                myquery = '{' + date1 + 'TO' + date2 +']'
-            q = QueryParser("date", ix.schema).parse(myquery)
+        if types[0] == 'date':
+            dates = get_date_query_from_input(text)
+            q = get_query(ix.schema, types, or_and, type_search, dates)
         else:
-            if type_search == "and":
-                qp = MultifieldParser(types, ix.schema, group=qparser.AndGroup)
-            else:
-                qp = MultifieldParser(types, ix.schema)
-            q = qp.parse(text)
+            q = get_query(ix.schema, types, or_and, type_search, text)
         results = searcher.search(q)
         for r in results:
             aux = []
@@ -123,11 +160,11 @@ def config_search(dir_index, search):
     def mostrar_lista(event):
         lb.delete(0, END)   #borra toda la lista
         if (search == 'title'):
-            busqueda = search_whoosh(["title", "description"], str(en.get()), dir_index, ["category", "title", "date"], "and")
+            busqueda = search_whoosh(["title", "description"], str(en.get()), dir_index, ["category", "title", "date"], "and", False)
         elif (search == 'description'):
-            busqueda = search_whoosh(["description"], str(en.get()), dir_index, ["title", "link", "description"], "and")
+            busqueda = search_whoosh(["description"], str(en.get()), dir_index, ["title", "link", "description"], "or", True)
         elif (search == 'date'):
-            busqueda = search_whoosh(["date"], str(en.get()), dir_index, ["category", "title", "date"], "and")
+            busqueda = search_whoosh(["date"], str(en.get()), dir_index, ["category", "title", "date"], "or", False)
         for resultado in busqueda:
             lb.insert(END, resultado[0])
             lb.insert(END, resultado[1])
