@@ -110,10 +110,7 @@ def get_query(schema, types, or_and, type_search, user_input):
             i += 1
         user_input = aux
     else:
-        if len(types) > 1:
-            qp = MultifieldParser(types, schema)
-        else:
-            qp = QueryParser(types[0], schema)
+        qp = MultifieldParser(types, schema)
     if type_search and or_and != "and":
         q = qp.parse(f'"{user_input}"')
     else:
@@ -121,7 +118,7 @@ def get_query(schema, types, or_and, type_search, user_input):
     return q
 
 
-def search_whoosh(types, text, dir_index, to_save, or_and, type_search):
+def search_whoosh(types, to_save, dir_index, or_and, type_search, user_input):
     # types = en que columnas buscar
     # text = parametro de búsqueda del usuario
     # dir_index = directorio del índece
@@ -132,10 +129,10 @@ def search_whoosh(types, text, dir_index, to_save, or_and, type_search):
     ix = open_dir(dir_index)
     with ix.searcher() as searcher:
         if types[0] == 'date':
-            dates = get_date_query_from_input(text)
+            dates = get_date_query_from_input(user_input)
             q = get_query(ix.schema, types, or_and, type_search, dates)
         else:
-            q = get_query(ix.schema, types, or_and, type_search, text)
+            q = get_query(ix.schema, types, or_and, type_search, user_input)
         results = searcher.search(q)
         for r in results:
             aux = []
@@ -145,37 +142,42 @@ def search_whoosh(types, text, dir_index, to_save, or_and, type_search):
         return res
 
 
-def config_search(dir_index, search):
+def config_search_aux(dir_index, search, en, l):
+    if en is None:
+        en = ""
+    else:
+        en = str(en.get())
     if search == 'title':
-        ref = 'Introduzca el título a buscar'
+        l.config(text='Introduzca el título a buscar')
+        search_index = search_whoosh(["title", "description"], ["category", "title", "date"], dir_index, "and", False,
+                                     en)
     elif search == 'description':
-        ref = 'Introduzca el texto a buscar'
-    elif (search == 'date'):
-        ref = 'Introduzca período (dd/mm/yyyy dd/mm/yyyy)'
+        l.config(text='Introduzca el texto a buscar')
+        search_index = search_whoosh(["description"], ["title", "link", "description"], dir_index, "or", True,
+                                     en)
     elif search == 'date':
-        ref = 'Introduzca período (dd/mm/yyyy dd/mm/yyyy)'
+        l.config(text='Introduzca período (dd/mm/yyyy dd/mm/yyyy)')
+        search_index = search_whoosh(["date"], ["category", "title", "date"], dir_index, "or", False, en)
+    return search_index
 
+
+def config_search(dir_index, search):
     def mostrar_lista(event):
         lb.delete(0, END)   #borra toda la lista
-        if (search == 'title'):
-            busqueda = search_whoosh(["title", "description"], str(en.get()), dir_index, ["category", "title", "date"], "and", False)
-        elif (search == 'description'):
-            busqueda = search_whoosh(["description"], str(en.get()), dir_index, ["title", "link", "description"], "or", True)
-        elif (search == 'date'):
-            busqueda = search_whoosh(["date"], str(en.get()), dir_index, ["category", "title", "date"], "or", False)
-        for resultado in busqueda:
-            lb.insert(END, resultado[0])
-            lb.insert(END, resultado[1])
-            lb.insert(END, resultado[2])
+        search_index = config_search_aux(dir_index, search, en, l)
+        for result in search_index:
+            lb.insert(END, result[0])
+            lb.insert(END, result[1])
+            lb.insert(END, result[2])
             lb.insert(END, " ")
-
     v = Toplevel()
     v.title('Búsqueda')
     f =Frame(v)
     f.pack(side=TOP)
-    l = Label(f, text=ref)
+    l = Label(f, text='Introduzca espacio en blanco para ver formato de búsqueda')
     l.pack(side=LEFT)
     en = Entry(f)
+    config_search_aux(dir_index, search, None, l)
     en.bind("<Return>", mostrar_lista)
     en.pack(side=LEFT)
     sc = Scrollbar(v)
