@@ -7,7 +7,7 @@ from urllib import request
 import os
 import dateutil.parser
 from whoosh.index import create_in,open_dir
-from whoosh.fields import Schema, TEXT, KEYWORD
+from whoosh.fields import Schema, TEXT, KEYWORD, DATETIME
 from whoosh.qparser import QueryParser
 from datetime import datetime
 
@@ -61,11 +61,15 @@ def find_url_response(url):
 
 
 def apartado_a(dirindex):
-    if not os.path.exists(dirindex):
-        os.mkdir(dirindex)
+    dir_one = dirindex + "one"
+    dir_two = dirindex + "two"
+    if not os.path.exists(dir_one):
+        os.mkdir(dir_one)
+        if not os.path.exists(dir_two):
+            os.mkdir(dir_two)
 
-    ix = create_in(dirindex, schema=get_schema_thread())
-    writer = ix.writer()
+    ix = create_in(dir_one, schema=get_schema_thread())
+    writer1 = ix.writer()
     i=0
     url = "https://foros.derecho.com/foro/34-Derecho-Inmobiliario"
     answers = find_url(url)
@@ -73,26 +77,48 @@ def apartado_a(dirindex):
     for answer in answers:
         responses.extend(find_url_response(answer[1]))
         if not os.path.isdir(url+answer[0]):
-            add_doc(writer, answer)
+            add_doc1(writer1, answer)
             i+=1
-    messagebox.showinfo("Fin de indexado", "Se han indexado "+str(i) + " temas y " + str(len(responses)) + " respuestas")
+    writer1.commit()
+
+    iz = create_in(dir_two, schema=get_schema_answers())
+    writer2 = iz.writer()
+    z = 0
+    for response in responses:
+        if not os.path.isdir(url+response[0]+str(z)):
+            add_doc2(writer2, response)
+            z+=1
+    writer2.commit()
+    messagebox.showinfo("Fin de indexado", "Se han indexado "+str(i) + " temas y " + str(z) + " respuestas")
             
-    writer.commit()
+
 
     
 def apartado_b(dirindex, search):
     def mostrar_lista(event):
         lb.delete(0,END)   #borra toda la lista
-        ix=open_dir(dirindex)      
+        if 'response' not in search:
+            number = 'one'
+        else:
+            number = 'two'
+        ix=open_dir(dirindex + number)
         with ix.searcher() as searcher:
             query = QueryParser(search, ix.schema).parse(str(en.get()))
             results = searcher.search(query)
             for r in results:
-                lb.insert(END,r['title'])
+                link = r['link'].split("-")[0]
+                if 'response' in search:
+                    iz = open_dir(dirindex + 'one')
+                    querytwo = QueryParser('link', iz.schema).parse(link)
+                    threads = searcher.search(querytwo)
+                    for t in threads:
+                        print('hola')
+                else:
+                    lb.insert(END, r['title'])
                 lb.insert(END,r['author'])
                 lb.insert(END, r['date'])
                 lb.insert(END,'')
-    
+
     v = Toplevel()
     if (search == 'title'):
         ref = 'Introduzca el título a buscar'
@@ -120,10 +146,10 @@ def get_schema_thread():
 
 
 def get_schema_answers():
-    return Schema(link=TEXT(stored=True), date=TEXT(stored=True), response=TEXT(stored=True), author=KEYWORD(stored=True))
+    return Schema(link=TEXT(stored=True), author=KEYWORD(stored=True), date=DATETIME(stored=True), response=TEXT(stored=True))
 
 
-def add_doc(writer, answer):
+def add_doc1(writer, answer):
     title = answer[0].strip()
     link = answer[1].strip()
     author = answer[2].strip()
@@ -133,6 +159,14 @@ def add_doc(writer, answer):
     
     writer.add_document(title=title, link=link, author=author, date=date, answers=answers, visits=visits)
 
+
+def add_doc2(writer, answer):
+    link = answer[0].strip()
+    author = answer[1].strip()
+    date_parse = answer[2]
+    response = answer[3].strip()
+
+    writer.add_document(link=link, author=author, date=date_parse, response=response)
     
 def ventana_principal():
     dirindex="Index"
@@ -155,6 +189,7 @@ def ventana_principal():
     menubar.add_cascade(label="Buscar", menu=data_menu)
     data_menu.add_command(label="Título", command=lambda: apartado_b(dirindex, 'title'))
     data_menu.add_command(label="Autor", command=lambda: apartado_b(dirindex, 'author'))
+    data_menu.add_command(label="Respuesta", command=lambda: apartado_b(dirindex, 'response'))
 
     top.mainloop()
 
