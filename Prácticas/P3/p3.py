@@ -92,6 +92,15 @@ def apartado_a(dirindex):
     messagebox.showinfo("Fin de indexado", "Se han indexado "+str(i) + " temas y " + str(z) + " respuestas")
             
 
+def get_title_from_link(dirindex, link):
+    res = set()
+    iz = open_dir(dirindex + 'one')
+    querytwo = QueryParser('link', iz.schema).parse(link)
+    with iz.searcher() as searcher:
+        threads = searcher.search(querytwo)
+        for thread in threads:
+            res.add(thread['title'])
+    return res
 
     
 def apartado_b(dirindex, search):
@@ -108,11 +117,9 @@ def apartado_b(dirindex, search):
             for r in results:
                 link = r['link'].split("-")[0]
                 if 'response' in search:
-                    iz = open_dir(dirindex + 'one')
-                    querytwo = QueryParser('link', iz.schema).parse(link)
-                    threads = searcher.search(querytwo)
-                    for t in threads:
-                        print('hola')
+                    titles = get_title_from_link(dirindex, link)
+                    for title in titles:
+                        lb.insert(END, title)
                 else:
                     lb.insert(END, r['title'])
                 lb.insert(END,r['author'])
