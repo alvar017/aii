@@ -1,4 +1,5 @@
 #encoding:utf-8
+import unicodedata
 from tkinter import *
 from tkinter import messagebox
 from bs4 import BeautifulSoup
@@ -8,6 +9,7 @@ import dateutil.parser
 from whoosh.index import create_in,open_dir
 from whoosh.fields import Schema, TEXT, KEYWORD
 from whoosh.qparser import QueryParser
+from datetime import datetime
 
 
 def find_url(url):
@@ -35,23 +37,25 @@ def find_url(url):
 
 def find_url_response(url):
     res = []
+    url = unicodedata.normalize("NFKD", url).encode("ascii","ignore").decode("ascii")
     f = request.urlopen(url)
     page = f.read().decode(f.headers.get_content_charset())
     f.close()
 
     soup = BeautifulSoup(page, 'html.parser')
-    threads = soup.findAll("li", {"class": "threadbit"})
+    threads = soup.findAll("li", {"class": "postbitlegacy postbitim postcontainer old"})
     for i in range(len(threads)):
-        title = threads[i].find("a", {"class": "title"}).get('title')
-        link = 'https://foros.derecho.com/' + threads[i].find("a", {"class": "title"}).get('href')
-        author = threads[i].find("a", {"class": "username understate"}).next
-        date = threads[i].find("a", {"class": "username understate"}).nextSibling.string[2:]
-        date_parse = dateutil.parser.parse(date).strftime("%d/%m/%Y")
-        answers_and_visits = threads[i].findAll("li")
-        answers = answers_and_visits[0].text[-1:]
-        visits = answers_and_visits[1].text[-1:]
+        link = url
+        author = threads[i].find("a", {"class": "username"})
+        if author is not None:
+            author = author.text
+        else:
+            author = "Guest"
+        date = threads[i].find("span", {"class": "date"}).text.replace(',', "")
+        date_parse = datetime.strptime(str(date), '%d/%m/%Y %H:%M')
+        response = threads[i].find("blockquote", {"class": "postcontent restore"}).text.strip()
 
-        aux = [title, link, author, date_parse, answers, visits]
+        aux = [link, author, date_parse, response]
         res.append(aux)
     return res
 
@@ -67,11 +71,11 @@ def apartado_a(dirindex):
     answers = find_url(url)
     responses = []
     for answer in answers:
-        responses.append(find_url_response(answer[1]))
+        responses.extend(find_url_response(answer[1]))
         if not os.path.isdir(url+answer[0]):
             add_doc(writer, answer)
             i+=1
-    messagebox.showinfo("Fin de indexado", "Se han indexado "+str(i)+ " temas")
+    messagebox.showinfo("Fin de indexado", "Se han indexado "+str(i) + " temas y " + str(len(responses)) + " respuestas")
             
     writer.commit()
 
@@ -131,7 +135,7 @@ def add_doc(writer, answer):
 
     
 def ventana_principal():
-    dirindex="C:/Users/Alvaro/OneDrive - UNIVERSIDAD DE SEVILLA/AII/aii/Ejercicios Phyton/Boletin 6/Index"
+    dirindex="Index"
     top = Tk()
     top.geometry("198x0")
 
