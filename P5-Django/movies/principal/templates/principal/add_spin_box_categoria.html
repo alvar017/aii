@@ -1,0 +1,25 @@
+{% extends 'principal/base.html' %}
+
+{% block head %}
+    <h2>Desplegable categoría</h2>
+{% endblock head %}
+
+{% block content %}
+<form method = "POST">
+    {% csrf_token %}
+    <select name = "cat" >
+        {% for categoria in categorias %}
+             <option  value="{{ categoria }}"> {{categoria}} </option>
+        {% endfor %}
+    </select>
+        
+    <input type="submit" value="Buscar">
+    
+</form>
+        
+<ul>
+    {% for film in films %}
+        <li>{{film}}</li>
+    {% endfor %}
+</ul>
+{% endblock content %}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Django Movies</title>
+</head>
+<body>
+    <div>
+        <h1>Dataset 100K</h1>
+        <a href="/">Página principal</a> | 
+        <a href="/load_data/">Cargar datos</a> |
+        <a href="/user_list_occupation/">Listar usuario</a> |  
+        <a href="/list_best_rated_films/">Top 5 películas</a> |  
+        <a href="/search_film_by_year/">Buscar películas por año</a> | 
+        <a href="/search_user_ratings/">Buscar puntuaciones de un usuario</a> | 
+        <a href="/add_spin_box_categoria/">Desplegable categoria</a> | 
+        <hr>
+        {% block head %}
+            <h2>Práctica dataset 100K</h2>
+        {% endblock head %}
+
+    </div>
+    <div>
+        {% block content %}
+        {% endblock content %}
+    </div>
+</body>
+</html>

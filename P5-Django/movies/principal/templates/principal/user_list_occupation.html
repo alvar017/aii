@@ -1,0 +1,15 @@
+{% extends 'principal/base.html' %}
+
+{% block head %}
+    <h2>Lista de usuarios</h2>
+{% endblock head %}
+{% block content %}
+    {% for occupation in occupations %}
+    {{occupation}}
+    <ul>
+        {% for user in occupation.usuario_set.all %}
+            <li>{{user}}</li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+{% endblock content %}

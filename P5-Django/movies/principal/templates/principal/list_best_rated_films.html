@@ -1,0 +1,12 @@
+{% extends 'principal/base.html' %}
+
+{% block head %}
+    <h2>Lista de las películas mejor valoradas</h2>
+{% endblock head %}
+{% block content %}
+    {% for film in peliculas %}
+    <ul>
+        <li>{{film}} {{film.avg_rating}}</li>
+    </ul>
+    {% endfor %}
+{% endblock content %}
