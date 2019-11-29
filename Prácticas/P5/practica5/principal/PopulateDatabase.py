@@ -10,7 +10,7 @@ import sys
 
 def read_file(file_dir):
     res = []
-    with open('../data/ml-100k/' + file_dir) as f:
+    with open('data/ml-100k/' + file_dir) as f:
         for line in f:
             line_aux = line.replace('\n', '').replace('\t', '').isdigit()
             if '|' in line:
@@ -176,9 +176,6 @@ def import_data(selection):
         print('It can be categories, occupations, users, film or punctuations\n')
         print("Example: ['categories', 'occupations'] or ['all'])")
 
-
-if __name__ == '__main__':
-    import_data(['all'])
 
 
 

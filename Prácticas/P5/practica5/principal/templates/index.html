@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>AII - Acceso Inteligente a la Información</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="{% static 'assets/css/main.css' %}" />
+		<noscript><link rel="stylesheet" href="{% static 'assets/css/noscript.css' %}"/></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Intro -->
+					<div id="intro">
+						<h1>PRÁCTICA 5</h1>
+						<p>
+                            Uso del framework Django para el desarrollo de páginas webs<br>
+                        </p>
+						<ul class="actions">
+							<li><a href="#header" class="button icon solid solo fa-arrow-down scrolly">Continuar</a></li>
+						</ul>
+					</div>
+
+				<!-- Header -->
+					<header id="header">
+						<a href="/" class="logo">INICIO</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li class="active"><a href="/">Inicio</a></li>
+                            <li><a href="populate/">Popular</a></li>
+							<li><a href="generic/">Usuarios</a></li>
+                            <li><a href="accounts/login/">Mejores Pelis</a></li>
+                            <li><a href="accounts/login/">Buscar Pelis</a></li>
+                            <li><a href="accounts/login/">Buscar Puntuaciones</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Featured Post -->
+							<article class="post featured">
+								<header class="major">
+                                    <h2>DESCRIPCIÓN</h2>
+									<h3>Contenido y especificación de las necesidades de la práctica</h3>
+                                    <p>
+                                        Se desea construir una página web, que permita recomendar a usuarios películas en función de las puntuaciones que han dado otros usuarios a las películas y los gustos de éstos.
+                                        <br>
+                                        <br>Construir el modelo de datos en Django que almacene la información siguiente:
+                                        <br>    a) Usuario: IdUsuario, Edad, Sexo(M,F), Ocupación, CódigoPostal.
+                                        <br>    b) Película: IdPelícula, Título, FechaEstreno, IMDbURL, Categorías.
+                                        <br>    c) Categoría: IdCategoría, Nombre.
+                                        <br>    d) Ocupación: Nombre
+                                        <br>    e) Puntuación: Almacena las puntaciones de usuarios a películas.
+                                        <br>    Las puntuaciones son números enteros entre 1 y 5.
+                                        <br>
+                                        <br>Poblar la base de datos extrayendo los datos del Dataset100K de Movilens http://grouplens.org/datasets/movielens/100k/
+                                        <br>
+                                        <br>Se pide construir una web con un menú principal, en la parte superior de la ventana, que permita las siguientes opciones:
+                                        <br>    a) Mostrar los usuarios (IdUsuario, Edad, CódigoPostal) agrupados por ocupación.
+                                        <br>    b) Mostrar el título de las 5 películas mejor puntuadas (puntuación media).
+                                        <br>    c) Un formulario que, dado un año de estreno, muestre todas las películas (título) que se hayan estrenado ese año.
+                                        <br>    d) Un formulario que, dado un idUsuario, muestre todas las películas (título) que haya puntuado y su puntuación.
+                                    </p>
+								</header>
+							</article>
+                    </div>
+				<!-- Copyright -->
+                				<!-- Header -->
+					<header id="header">
+						<a href="/" class="logo">INICIO</a>
+					</header>
+					<div id="copyright">
+						<ul><li>&copy; Balonmano Viso<br><br>Designed by <a 
+href="https://www.linkedin.com/in/%C3%A1lvaro-de-la-flor-bonilla-b56b5b144/" >Álvaro de la Flor Bonilla</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="{% static 'assets/js/jquery.min.js' %} "></script>
+			<script src="{% static 'assets/js/jquery.scrollex.min.js' %} "></script>
+			<script src="{% static 'assets/js/jquery.scrolly.min.js' %} "></script>
+			<script src="{% static 'assets/js/browser.min.js' %} "></script>
+			<script src="{% static 'assets/js/breakpoints.min.js' %} "></script>
+			<script src="{% static 'assets/js/util.js' %} "></script>
+			<script src="{% static 'assets/js/main.js' %} "></script>
+	</body>
+</html>
