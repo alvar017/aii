@@ -10,17 +10,20 @@ import sys
 
 def read_file(file_dir):
     res = []
+#    with open('../data/ml-100k/' + file_dir) as f:
     with open('data/ml-100k/' + file_dir) as f:
-        for line in f:
-            line_aux = line.replace('\n', '').replace('\t', '').isdigit()
+        lines = f.read().splitlines()
+        for line in lines:
             if '|' in line:
                 aux = line.replace('\n', '').split('|')
                 res.append(aux)
-            elif line_aux:
-                aux = line.split('\t')
-                res.append(aux)
             else:
-                res.append(line)
+                line_aux = line.replace('\n', '').replace('\t', '').isdigit()
+                if line_aux:
+                    aux = line.split('\t')
+                    res.append(aux)
+                else:
+                    res.append(line)
     return res
 
 
@@ -36,7 +39,7 @@ def import_categories():
             if len(category) > 1:
                 id_object = int(category[1])
                 name_category = category[0]
-                res.append(Category(id_category=id_object, name=name_category))
+                res.append(Category(category_id=id_object, name=name_category))
             z += 1
         except:
             e = sys.exc_info()[0]
@@ -82,7 +85,7 @@ def import_users():
                 sex = user[2]
                 occupation = Occupation.objects.get(name=str(user[3]).strip())
                 postal_code = user[4]
-                res.append(User(id_user=id_user, age=age, sex=sex, occupation=occupation, postal_code=postal_code))
+                res.append(User(user_id=id_user, age=age, sex=sex, occupation=occupation, postal_code=postal_code))
             z += 1
         except:
             e = sys.exc_info()[0]
@@ -95,33 +98,35 @@ def import_users():
 def import_films():
     print('Indexing films, show the progress:')
     Film.objects.all().delete()
-    films = read_file('u.item')
+    through_model = Film.categories.through
+    films_lines = read_file('u.item')
+    films = []
+    relations = []
     z = 0
-    for film in films:
+    for film in films_lines:
         try:
-            printProgressBar(z, len(films))
-            id_film = int(film[0])
+            printProgressBar(z, len(films_lines))
+            film_id = int(film[0])
             title = film[1].strip()
             date = film[2].strip()
             release_date = None if len(date) == 0 else datetime.strptime(date, '%d-%b-%Y')
             imdb_url = film[4]
-            f = Film(id_film=id_film, title=title, release_date=release_date, imdb_url=imdb_url)
+            films.append(Film(film_id=film_id, title=title, release_date=release_date, url=imdb_url))
             i = 5
-            f.save()
             while i < len(film):
                 aux_value = film[i].strip()
                 id_category = str(i - 5)
                 if '1' in aux_value:
-                    category = Category.objects.get(id_category=id_category)
-                    f.categories.add(category)
-                    i += 1
-                else:
-                    i += 1
+                    category = Category.objects.get(category_id=id_category)
+                    relations.append(through_model(category=category, film_id=film_id))
+                i += 1
             z += 1
         except:
             e = sys.exc_info()[0]
             print("Error when creating a film: {0}".format(e))
             print('The value ' + str(film) + ' can not be index\n')
+    Film.objects.bulk_create(films)
+    through_model.objects.bulk_create(relations)
     print(str(z) + ' films indexes\n')
 
 
@@ -134,10 +139,10 @@ def import_punctuations():
     for punctuation in punctuations:
         try:
             printProgressBar(z, len(punctuations))
-            user = User.objects.get(id_user=int(punctuation[0]))
-            film = Film.objects.get(id_film=int(punctuation[1]))
+            user_aux = punctuation[0]
+            film_aux = punctuation[1]
             score = int(punctuation[2])
-            res.append(Punctuation(id_user=user, id_film=film, punctuation=score))
+            res.append(Punctuation(user_id=user_aux, film_id=film_aux, rank=score))
             z += 1
         except:
             e = sys.exc_info()[0]
@@ -177,5 +182,5 @@ def import_data(selection):
         print("Example: ['categories', 'occupations'] or ['all'])")
 
 
-
-
+#if __name__ == '__main__':
+#    import_data('all')
