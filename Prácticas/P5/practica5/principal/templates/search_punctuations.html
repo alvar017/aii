@@ -50,7 +50,26 @@
                                     <h2>MUESTRA DE USUARIOS</h2>
                                     <p>
                                         <h3>Buscador de valoraciones de usuario</h3>
+                                        <form class="uk-form" id="formulario" method="post" action=''>{% csrf_token %}
+                                            <fieldset>
+                                                <legend>Busqueda de Usuarios</legend>
+                                                <input type="text" name="idUsuario" id="id_idUsuario" placeholder="Id del Usuario"/>
+                                                <br>
+                                                <input class="uk-button" type='submit' value='Realizar Busqueda'/>
+                                            </fieldset>
+                                        </form>
+                                        {% if puntuaciones %}
+                                            <h3> Peliculas puntuadas por el usuario:  {{ puntuaciones|length }}</h3>
+                                            <dl class="uk-description-list-line">
 
+                                            {% for row in puntuaciones %}
+                                                <dt>{{row.idPelicula.titulo}}</dt>
+                                                <dd>Puntuacion: {{row.puntuacion}}/5</dd>
+                                            {% endfor %}
+
+                                            </dl>
+
+                                        {% endif %}
                                     </p>
 								</header>
 							</article>
