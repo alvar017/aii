@@ -53,11 +53,13 @@
                                         {% regroup users_query by occupation as grouped %}
                                         {% for group in grouped %}
                                             <h3 class="uk-accordion-title">Ocupación: {{group.grouper}} ({{group.list|length}} usuarios)</h3>
-                                            <ul class="uk-list  uk-list-striped">
+                                            <dl class="uk-description-list-line">
                                             {% for users_query in group.list %}
-                                                <li><strong>Id Usuario:</strong> {{users_query.id_user}} | <strong>Edad:</strong> {{users_query.age}} | <strong>Codigo Postal:</strong> {{users_query.postal_code}}</li>
+                                                <dt><strong>Usuario con ID</strong> {{users_query.user_id}}</dt>
+                                                <dd>Edad: {{users_query.age}}</dd>
+                                                <dd>Codigo Postal: {{users_query.postal_code}}</dd>
                                             {% endfor %}
-                                            </ul>
+                                            </dl>
                                         {% endfor %}
                                     </p>
 								</header>
