@@ -16,4 +16,5 @@ urlpatterns = [
     path('best_films/', views.best_films, name='best_films'),
     path('search_films/', views.search_films, name='search_films'),
     path('search_punctuations/', views.search_punctuation, name='search_punctuation'),
+    path('search_category/', views.search_category, name='search_category'),
 ]

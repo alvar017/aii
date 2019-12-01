@@ -8,3 +8,7 @@ class UserSearchForm(forms.Form):
 
 class FilmSearchByYearForm(forms.Form):
     year = forms.IntegerField(label="Año de publicación", widget=forms.TextInput, required=True)
+
+
+class CategorySearchForm(forms.Form):
+    categories = forms.CharField()

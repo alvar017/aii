@@ -36,9 +36,9 @@
                             <li><a href="/populate/">Popular</a></li>
 							<li><a href="/users/">Usuarios</a></li>
                             <li><a href="/best_films/">Mejores Pelis</a></li>
-                            <li class="active"><a href="/search_films/">Buscar Pelis</a></li>
-                            <li><a href="/search_punctuations/">Buscar Puntuaciones</a></li>
-                            <li><a href="/search_category/">Categorías</a></li>
+                            <li><a href="/search_films/">Buscar Pelis</a></li>
+                            <li><a href="/search_punctuations/">Buscar Pelis</a></li>
+                            <li class="active"><a href="/search_category/">Categorías</a></li>
 						</ul>
 					</nav>
 
@@ -50,31 +50,27 @@
 								<header class="major">
                                     <h2>MUESTRA DE USUARIOS</h2>
                                     <p>
-                                        <h3>Buscador de películas</h3>
-                                        <form id="formulario" method="post" action=''>{% csrf_token %}
-                                            <fieldset>
-                                                <legend>Busqueda de Peliculas</legend>
-                                                <input type="text" name="year" id="id_year" placeholder="Año de Publicacion"/>
-                                                <BR>
-                                                <input class="uk-button" type='submit' value='Realizar Busqueda'/>
-                                            </fieldset>
-                                        </form>
-                                        {% if peliculas %}
-                                            <h3> Peliculas del a&ntilde;o {{ peliculas.values.0.release_date.year }}:  {{ peliculas|length }}</h3>
-                                            <dl class="uk-description-list-line">
-
-                                            {% for row in peliculas %}
-                                                <dt>{{row.title}}</dt>
-                                                <dd>{{row.release_date}} | <a target="_blank" href="{{row.url}}">{{row.url}}</a></dd>
-                                                <dd> Categorias:
-                                                {% for cat in row.categories.all %}
-                                                    {{cat.name}}
+                                        <h3>Buscador por categoría</h3>
+                                        <form method = "POST"> {% csrf_token %}
+                                            <select name = "category_form" >
+                                                {% for category in categories %}
+                                                     <option  value="{{ category.id }}"> {{category.name}} </option>
                                                 {% endfor %}
-                                                </dd>
-                                            {% endfor %}
-
+                                            </select>
+                                            <input type="submit" value="Buscar">
+                                        </form>
+                                        {% if films %}
+                                            <dl class="uk-description-list-line">
+                                                {% for row in films %}
+                                                    <dt>{{row.title}}</dt>
+                                                    <dd>{{row.release_date}} | <a target="_blank" href="{{row.url}}">{{row.url}}</a></dd>
+                                                    <dd> Categorias:
+                                                    {% for cat in row.categories.all %}
+                                                        {{cat.name}}
+                                                    {% endfor %}
+                                                    </dd>
+                                                {% endfor %}
                                             </dl>
-
                                         {% endif %}
                                     </p>
 								</header>

@@ -89,3 +89,18 @@ def search_punctuation(request):
 
     return render(request, 'search_punctuations.html',
                   {'formulario': form, 'puntuaciones': punctuations, 'STATIC_URL': settings.STATIC_URL})
+
+
+def search_category(request):
+    categories = Category.objects.all()
+
+    if request.method == 'POST':
+        category_form = forms.CategorySearchForm(request.POST)
+        selected_value = request.POST['category_form']
+        films = Film.objects.filter(categories__name__contains=selected_value)
+        return render(request, "search_category.html",
+                      {"films": films, "categories": categories, 'STATIC_URL': settings.STATIC_URL})
+    else:
+        return render(request, "search_category.html",
+                      {"categories": categories, 'STATIC_URL': settings.STATIC_URL})
+
