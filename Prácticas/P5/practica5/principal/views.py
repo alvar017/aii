@@ -76,4 +76,15 @@ def search_films(request):
 
 
 def search_punctuation(request):
-    return render(request, 'search_punctuations.html',)
+    form = forms.UserSearchForm()
+    punctuations = None
+
+    if request.method == 'POST':
+        form = forms.UserSearchForm(request.POST)
+
+        if form.is_valid():
+            punctuations = Punctuation.objects.filter(
+                user_id=User.objects.get(pk=form.cleaned_data['user_id']))
+
+    return render(request, 'search_punctuations.html',
+                  {'formulario': form, 'puntuaciones': punctuations, 'STATIC_URL': settings.STATIC_URL})
