@@ -97,7 +97,7 @@ def search_category(request):
     if request.method == 'POST':
         category_form = forms.CategorySearchForm(request.POST)
         selected_value = request.POST['category_form']
-        films = Film.objects.filter(categories__name__contains=selected_value)
+        films = Film.objects.filter(categories__category_id__contains=selected_value)
         return render(request, "search_category.html",
                       {"films": films, "categories": categories, 'STATIC_URL': settings.STATIC_URL})
     else:
