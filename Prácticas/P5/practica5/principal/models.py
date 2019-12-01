@@ -13,7 +13,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return "{0} - {1}".format(self.id, self.name)
+        return "CATEGORY ID:{0} - {1}".format(self.id, self.name)
 
 
 class User(models.Model):
@@ -34,9 +34,10 @@ class Film(models.Model):
     release_date = models.DateField(null=True)
     url = models.URLField(null=True)
     categories = models.ManyToManyField(Category)
+    punctuations = models.ManyToManyField(User, through='Punctuation')
 
     def __str__(self):
-        return "FILM ID:{0}".format(self.film_id)
+        return "FILM ID:{0} - {1}".format(self.film_id, self.title)
 
 
 class Punctuation(models.Model):
@@ -45,6 +46,6 @@ class Punctuation(models.Model):
     rank = models.IntegerField()
 
     def __str__(self):
-        return "ID: {0} RANK:{1}".format(self.film_id, self.rank)
+        return "ID: {0} - FILM:{1} RANK:{2}".format(self.film_id, self.film.title, self.rank)
 
 

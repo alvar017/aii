@@ -28,7 +28,7 @@ def read_file(file_dir):
 
 
 def import_categories():
-    print('Indexing categories, show the progress:')
+    print('Indexing categories... look at progress:')
     Category.objects.all().delete()
     categories = read_file('u.genre')
     res = []
@@ -37,9 +37,9 @@ def import_categories():
         try:
             printProgressBar(z, len(categories))
             if len(category) > 1:
-                id_object = int(category[1])
-                name_category = category[0]
-                res.append(Category(category_id=id_object, name=name_category))
+                category_id = int(category[1])
+                name = category[0]
+                res.append(Category(category_id=category_id, name=name))
             z += 1
         except:
             e = sys.exc_info()[0]
@@ -50,7 +50,7 @@ def import_categories():
 
 
 def import_occupations():
-    print('Indexing occupations, show the progress:')
+    print('Indexing occupations... look at progress:')
     Occupation.objects.all().delete()
     occupations = read_file('u.occupation')
     z = 0
@@ -71,7 +71,7 @@ def import_occupations():
 
 
 def import_users():
-    print('Indexing users, show the progress:')
+    print('Indexing users... look at progress:')
     User.objects.all().delete()
     users = read_file('u.user')
     res = []
@@ -80,12 +80,12 @@ def import_users():
         try:
             printProgressBar(z, len(users))
             if len(user) > 0:
-                id_user = int(user[0])
+                user_id = int(user[0])
                 age = user[1]
                 sex = user[2]
                 occupation = Occupation.objects.get(name=str(user[3]).strip())
                 postal_code = user[4]
-                res.append(User(user_id=id_user, age=age, sex=sex, occupation=occupation, postal_code=postal_code))
+                res.append(User(user_id=user_id, age=age, sex=sex, occupation=occupation, postal_code=postal_code))
             z += 1
         except:
             e = sys.exc_info()[0]
@@ -96,7 +96,7 @@ def import_users():
 
 
 def import_films():
-    print('Indexing films, show the progress:')
+    print('Indexing films... look at progress:')
     Film.objects.all().delete()
     through_model = Film.categories.through
     films_lines = read_file('u.item')
@@ -115,9 +115,9 @@ def import_films():
             i = 5
             while i < len(film):
                 aux_value = film[i].strip()
-                id_category = str(i - 5)
+                category_id = str(i - 5)
                 if '1' in aux_value:
-                    category = Category.objects.get(category_id=id_category)
+                    category = Category.objects.get(category_id=category_id)
                     relations.append(through_model(category=category, film_id=film_id))
                 i += 1
             z += 1
@@ -131,7 +131,7 @@ def import_films():
 
 
 def import_punctuations():
-    print('Indexing punctuations, show the progress:')
+    print('Indexing punctuations... look at progress:')
     Punctuation.objects.all().delete()
     punctuations = read_file('u.data')
     res = []
@@ -139,10 +139,10 @@ def import_punctuations():
     for punctuation in punctuations:
         try:
             printProgressBar(z, len(punctuations))
-            user_aux = punctuation[0]
-            film_aux = punctuation[1]
+            user_id = punctuation[0]
+            film_id = punctuation[1]
             score = int(punctuation[2])
-            res.append(Punctuation(user_id=user_aux, film_id=film_aux, rank=score))
+            res.append(Punctuation(user_id=user_id, film_id=film_id, rank=score))
             z += 1
         except:
             e = sys.exc_info()[0]
@@ -179,7 +179,8 @@ def import_data(selection):
     if i == 0:
         print('Nothing to import! Use a string array with your selection\n')
         print('It can be categories, occupations, users, film or punctuations\n')
-        print("Example: ['categories', 'occupations'] or ['all'])")
+        print("Example: ['categories', 'occupations'])")
+        print("Use ['all'] for a complete indexation)")
 
 
 #if __name__ == '__main__':

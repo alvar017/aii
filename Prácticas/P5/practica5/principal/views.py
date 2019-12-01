@@ -41,6 +41,7 @@ def populate_users(request):
 
 def populate_films(request):
     PopulateDatabase.import_data('films')
+    PopulateDatabase.import_data('punctuations')
     last_action = 'Última acción realizada correctamente: ' + str(datetime.now())
     return render(request, 'populate.html', {'last_action_f': last_action, 'STATIC_URL': settings.STATIC_URL})
 
