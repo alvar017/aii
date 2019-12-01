@@ -2,6 +2,7 @@ from django.db.models import Count, Avg
 from django.shortcuts import render
 from django.conf import settings
 from principal import PopulateDatabase
+from principal import forms
 from principal.models import *
 from datetime import *
 
@@ -61,7 +62,17 @@ def best_films(request):
 
 
 def search_films(request):
-    return render(request, 'search_films.html',)
+    form = forms.FilmSearchByYearForm()
+    films = None
+
+    if request.method == 'POST':
+        form = forms.FilmSearchByYearForm(request.POST)
+
+        if form.is_valid():
+            films = Film.objects.filter(release_date__year=form.cleaned_data['year'])
+
+    return render(request, 'search_films.html',
+                  {'formulario': form, 'peliculas': films, 'STATIC_URL': settings.STATIC_URL})
 
 
 def search_punctuation(request):

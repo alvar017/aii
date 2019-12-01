@@ -50,7 +50,31 @@
                                     <h2>MUESTRA DE USUARIOS</h2>
                                     <p>
                                         <h3>Buscador de películas</h3>
+                                        <form id="formulario" method="post" action=''>{% csrf_token %}
+                                            <fieldset>
+                                                <legend>Busqueda de Peliculas</legend>
+                                                <input type="text" name="year" id="id_year" placeholder="Año de Publicacion"/>
+                                                <BR>
+                                                <input class="uk-button" type='submit' value='Realizar Busqueda'/>
+                                            </fieldset>
+                                        </form>
+                                        {% if peliculas %}
+                                            <h3> Peliculas del a&ntilde;o {{ peliculas.values.0.release_date.year }}:  {{ peliculas|length }}</h3>
+                                            <dl class="uk-description-list-line">
 
+                                            {% for row in peliculas %}
+                                                <dt>{{row.title}}</dt>
+                                                <dd>{{row.release_date}} | <a target="_blank" href="{{row.url}}">{{row.url}}</a></dd>
+                                                <dd> Categorias:
+                                                {% for cat in row.categories.all %}
+                                                    {{cat.name}}
+                                                {% endfor %}
+                                                </dd>
+                                            {% endfor %}
+
+                                            </dl>
+
+                                        {% endif %}
                                     </p>
 								</header>
 							</article>
