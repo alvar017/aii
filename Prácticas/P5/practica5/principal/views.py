@@ -28,7 +28,7 @@ def populate_municipios(request):
 
 
 def populate_tipoeventos(request):
-    PopulateDatabase.import_data('Evento')
+    PopulateDatabase.import_data('Tipo_JA')
     last_action = 'Última acción realizada correctamente: ' + str(datetime.now())
     return render(request, 'populate.html', {'last_action_o': last_action, 'STATIC_URL': settings.STATIC_URL})
 

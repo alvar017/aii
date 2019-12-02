@@ -1,6 +1,6 @@
 from principal.models import Lenguaje
 from principal.models import Municipio
-from principal.models import Tipo_Evento
+from principal.models import Tipoevento
 from principal.models import Evento
 from datetime import datetime
 from principal.progressbar import printProgressBar
@@ -36,7 +36,7 @@ def import_lenguaje():
         try:
             printProgressBar(z, len(lenguajes))
             if len(lenguaje) > 1:
-                nombre = lenguaje[1]
+                nombre = lenguaje.strip()
                 res.append(Lenguaje(nombre=nombre))
             z += 1
         except:
@@ -67,24 +67,25 @@ def import_municipio():
     Municipio.objects.bulk_create(res)
     print(str(len(res)) + ' municipio indexes\n')
 
+
 def import_tipoEventos():
     print('Indexing occupations... look at progress:')
-    Tipo_Evento.objects.all().delete()
+    Tipoevento.objects.all().delete()
     tipoEventos = read_file('tipoevento.csv')
     z = 0
     res = []
-    for tipoEvento in tipoEventos:
+    for tipoevento in tipoEventos:
         try:
             printProgressBar(z, len(tipoEventos))
-            tipoEvento = str(tipoEvento).strip()
-            if tipoEvento is not '':
-                res.append(Tipo_Evento(nombre=str(tipoEvento)))
+            tipoevento_aux = str(tipoevento).strip()
+            if tipoevento_aux is not '':
+                res.append(Tipoevento(nombre=str(tipoevento)))
             z += 1
         except:
             e = sys.exc_info()[0]
             print("Error when creating an tipo_evento: {0}".format(e))
-            print('The value ' + str(tipoEvento) + ' can not be index\n')
-    Tipo_Evento.objects.bulk_create(res)
+            print('The value ' + str(tipoevento) + ' can not be index\n')
+    Tipoevento.objects.bulk_create(res)
     print(str(len(res)) + ' tipoEventos indexes\n')
 
 
@@ -100,7 +101,7 @@ def import_eventos():
         try:
             printProgressBar(z, len(eventos_lines))
             nombre = evento[0].strip()
-            tipo_evento = Tipo_Evento.objects.get(nombre=str(evento[1].strip())) 
+            tipo_evento = Tipoevento.objects.get(nombre=str(evento[1].strip()))
             date = evento[2].strip()
             fecha_inicio_evento = None if len(date) == 0 else datetime.strptime(date, '%d/%m/%Y')
             nombre_lugar = evento[4]
@@ -138,7 +139,7 @@ def import_data(selection):
     if 'Municipio' in selection:
         import_municipio()
         i += 1
-    if 'Tipo_Evento' in selection:
+    if 'Tipo_JA' in selection:
         import_tipoEventos()
         i += 1
     if 'Evento' in selection:
