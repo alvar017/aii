@@ -1,8 +1,7 @@
-from principal.models import Category
-from principal.models import Occupation
-from principal.models import User
-from principal.models import Film
-from principal.models import Punctuation
+from principal.models import Lenguaje
+from principal.models import Municipio
+from principal.models import Tipo_Evento
+from principal.models import Evento
 from datetime import datetime
 from principal.progressbar import printProgressBar
 import sys
@@ -14,8 +13,8 @@ def read_file(file_dir):
     with open('data/ml-100k/' + file_dir) as f:
         lines = f.read().splitlines()
         for line in lines:
-            if '|' in line:
-                aux = line.replace('\n', '').split('|')
+            if ';' in line:
+                aux = line.replace('\n', '').split(';')
                 res.append(aux)
             else:
                 line_aux = line.replace('\n', '').replace('\t', '').isdigit()
@@ -27,154 +26,129 @@ def read_file(file_dir):
     return res
 
 
-def import_categories():
-    print('Indexing categories... look at progress:')
-    Category.objects.all().delete()
-    categories = read_file('u.genre')
+def import_lenguaje():
+    print('Indexing lenguaje... look at progress:')
+    Lenguaje.objects.all().delete()
+    lenguajes = read_file('lenguas.csv')
     res = []
     z = 0
-    for category in categories:
+    for lenguaje in lenguajes:
         try:
-            printProgressBar(z, len(categories))
-            if len(category) > 1:
-                category_id = int(category[1])
-                name = category[0]
-                res.append(Category(category_id=category_id, name=name))
+            printProgressBar(z, len(lenguajes))
+            if len(lenguaje) > 1:
+                nombre = lenguaje[1]
+                res.append(Lenguaje(nombre=nombre))
             z += 1
         except:
             e = sys.exc_info()[0]
-            print("Error when creating a category: {0}".format(e))
-            print('The value ' + str(category) + ' can not be index\n')
-    Category.objects.bulk_create(res)
-    print(str(len(res)) + ' categories indexes\n')
+            print("Error when creating a lenguaje: {0}".format(e))
+            print('The value ' + str(lenguaje) + ' can not be index\n')
+    Lenguaje.objects.bulk_create(res)
+    print(str(len(res)) + ' lenguaje indexes\n')
 
 
-def import_occupations():
+def import_municipio():
+    print('Indexing municipios... look at progress:')
+    Municipio.objects.all().delete()
+    municipios = read_file('municipio.csv')
+    z = 0
+    res = []
+    for municipio in municipios:
+        try:
+            printProgressBar(z, len(municipios))
+            municipio = str(municipio).strip()
+            if municipio is not '':
+                res.append(Municipio(nombre=str(municipio)))
+            z += 1
+        except:
+            e = sys.exc_info()[0]
+            print("Error when creating an municipio: {0}".format(e))
+            print('The value ' + str(municipio) + ' can not be index\n')
+    Municipio.objects.bulk_create(res)
+    print(str(len(res)) + ' municipio indexes\n')
+
+def import_tipoEventos():
     print('Indexing occupations... look at progress:')
-    Occupation.objects.all().delete()
-    occupations = read_file('u.occupation')
+    Tipo_Evento.objects.all().delete()
+    tipoEventos = read_file('tipoevento.csv')
     z = 0
     res = []
-    for occupation in occupations:
+    for tipoEvento in tipoEventos:
         try:
-            printProgressBar(z, len(occupations))
-            occupation = str(occupation).strip()
-            if occupation is not '':
-                res.append(Occupation(name=str(occupation)))
+            printProgressBar(z, len(tipoEventos))
+            tipoEvento = str(tipoEvento).strip()
+            if tipoEvento is not '':
+                res.append(Tipo_Evento(nombre=str(tipoEvento)))
             z += 1
         except:
             e = sys.exc_info()[0]
-            print("Error when creating an occupation: {0}".format(e))
-            print('The value ' + str(occupation) + ' can not be index\n')
-    Occupation.objects.bulk_create(res)
-    print(str(len(res)) + ' occupations indexes\n')
+            print("Error when creating an tipo_evento: {0}".format(e))
+            print('The value ' + str(tipoEvento) + ' can not be index\n')
+    Tipo_Evento.objects.bulk_create(res)
+    print(str(len(res)) + ' tipoEventos indexes\n')
 
 
-def import_users():
-    print('Indexing users... look at progress:')
-    User.objects.all().delete()
-    users = read_file('u.user')
-    res = []
-    z = 0
-    for user in users:
-        try:
-            printProgressBar(z, len(users))
-            if len(user) > 0:
-                user_id = int(user[0])
-                age = user[1]
-                sex = user[2]
-                occupation = Occupation.objects.get(name=str(user[3]).strip())
-                postal_code = user[4]
-                res.append(User(user_id=user_id, age=age, sex=sex, occupation=occupation, postal_code=postal_code))
-            z += 1
-        except:
-            e = sys.exc_info()[0]
-            print("Error when creating an user: {0}".format(e))
-            print('The value ' + str(user) + ' can not be index\n')
-    User.objects.bulk_create(res)
-    print(str(len(res)) + ' users indexes\n')
-
-
-def import_films():
-    print('Indexing films... look at progress:')
-    Film.objects.all().delete()
-    through_model = Film.categories.through
-    films_lines = read_file('u.item')
-    films = []
+def import_eventos():
+    print('Indexing eventos... look at progress:')
+    Evento.objects.all().delete()
+    through_model = Evento.lenguajes.through
+    eventos_lines = read_file('dataset-A.csv')
+    eventos = []
     relations = []
     z = 0
-    for film in films_lines:
+    for evento in eventos_lines:
         try:
-            printProgressBar(z, len(films_lines))
-            film_id = int(film[0])
-            title = film[1].strip()
-            date = film[2].strip()
-            release_date = None if len(date) == 0 else datetime.strptime(date, '%d-%b-%Y')
-            imdb_url = film[4]
-            films.append(Film(film_id=film_id, title=title, release_date=release_date, url=imdb_url))
-            i = 5
-            while i < len(film):
-                aux_value = film[i].strip()
-                category_id = str(i - 5)
-                if '1' in aux_value:
-                    category = Category.objects.get(category_id=category_id)
-                    relations.append(through_model(category=category, film_id=film_id))
-                i += 1
+            printProgressBar(z, len(eventos_lines))
+            nombre = evento[0].strip()
+            tipo_evento = Tipo_Evento.objects.get(nombre=str(evento[1].strip())) 
+            date = evento[2].strip()
+            fecha_inicio_evento = None if len(date) == 0 else datetime.strptime(date, '%d/%m/%Y')
+            nombre_lugar = evento[4]
+            municipio = Municipio.objects.get(nombre=str(evento[5]))
+            pais = evento[6].strip()
+
+            eventos.append(Evento(nombre=nombre, tipo_evento=tipo_evento, fecha_inicio_evento=fecha_inicio_evento, nombre_lugar=nombre_lugar, municipio=municipio, pais=pais ))
+            i = 3
+            lenguajes_aux = []
+            if "/" in evento[3]:
+                lenguajes_aux = evento[3].split("/")
+            else:
+                lenguajes_aux.append(evento[3].strip())   
+            
+            j = 0
+            while j < len(lenguajes_aux):
+                lenguaje = Lenguaje.objects.get(nombre=lenguajes_aux[j])
+                relations.append(through_model(lenguaje=lenguaje))
+                j += 1
             z += 1
         except:
             e = sys.exc_info()[0]
-            print("Error when creating a film: {0}".format(e))
-            print('The value ' + str(film) + ' can not be index\n')
-    Film.objects.bulk_create(films)
+            print("Error when creating a evento: {0}".format(e))
+            print('The value ' + str(evento) + ' can not be index\n')
+    Evento.objects.bulk_create(eventos)
     through_model.objects.bulk_create(relations)
-    print(str(z) + ' films indexes\n')
-
-
-def import_punctuations():
-    print('Indexing punctuations... look at progress:')
-    Punctuation.objects.all().delete()
-    punctuations = read_file('u.data')
-    res = []
-    z = 0
-    for punctuation in punctuations:
-        try:
-            printProgressBar(z, len(punctuations))
-            user_id = punctuation[0]
-            film_id = punctuation[1]
-            score = int(punctuation[2])
-            res.append(Punctuation(user_id=user_id, film_id=film_id, rank=score))
-            z += 1
-        except:
-            e = sys.exc_info()[0]
-            print("Error when creating a punctuation: {0}".format(e))
-            print('The value ' + str(punctuation) + ' can not be index\n')
-    Punctuation.objects.bulk_create(res)
-    print(str(len(res)) + ' punctuations indexes\n')
+    print(str(z) + ' eventos indexes\n')
 
 
 def import_data(selection):
     i = 0
-    if 'categories' in selection:
-        import_categories()
+    if 'Lenguaje' in selection:
+        import_lenguaje()
         i += 1
-    if 'occupations' in selection:
-        import_occupations()
+    if 'Municipio' in selection:
+        import_municipio()
         i += 1
-    if 'users' in selection:
-        import_users()
+    if 'Tipo_Evento' in selection:
+        import_tipoEventos()
         i += 1
-    if 'films' in selection:
-        import_films()
-        i += 1
-    if 'punctuations' in selection:
-        import_punctuations()
+    if 'Evento' in selection:
+        import_eventos()
         i += 1
     if 'all' in selection:
-        import_categories()
-        import_occupations()
-        import_users()
-        import_films()
-        import_punctuations()
+        import_lenguaje()
+        import_municipio()
+        import_tipoEventos()
+        import_eventos()
         i += 4
     if i == 0:
         print('Nothing to import! Use a string array with your selection\n')
