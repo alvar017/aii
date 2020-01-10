@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sistema de Recomendacion - Movielens</title>
+</head>
+<body>
+    <div>
+        <h1>Holi</h1>
+        <a href="/">Página principal</a> | 
+        <a href="/load_data/">Cargar datos</a> |
+        <a href="/loadRS/">Cargar sistemas de recomendación</a> |
+        <hr>
+        <a href="/search">Peliculas puntuadas por un Usuario</a> |
+        <a href="/recommendedFilmsItems">Recomendar dos Peliculas a un Usuario (Basado en item)</a> |
+        <a href="/recommendedFilmsUser">Recomendar dos Peliculas a un Usuario (Basado en usuario)</a> 
+        <br>
+        <a href="/recommendedUsersFilms">Recomendar una Pelicula a tres Usuarios</a>
+        <a href="/similarFilms">Tres Peliculas que más se parecen a otra</a>
+    </div>
+    <div>
+        {% block content %}
+        {% endblock content %}
+    </div>
+</body>
+</html>
