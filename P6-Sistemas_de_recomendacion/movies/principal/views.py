@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from principal.models import Occupation, Genre, UserInformation, Film, Rating
+from principal.models import Puntuacion, Libro
 from datetime import datetime
 import os
 from principal.recommendations import  transformPrefs, calculateSimilarItems, getRecommendations, getRecommendedItems, topMatches
@@ -10,89 +10,47 @@ def index(request):
     return render(request, "principal/base.html")
 
 def cargar_datos(request):
-    Rating.objects.all().delete()
-    Film.objects.all().delete()
-    UserInformation.objects.all().delete()
-    Genre.objects.all().delete()
-    Occupation.objects.all().delete()
-
+    Puntuacion.objects.all().delete()
+    Libro.objects.all().delete()
+    
     module_dir = os.path.dirname(__file__)
-    with open(module_dir + "/data/ml-100k/u.occupation", "r", encoding="utf8", errors="ignore") as f:
-        print("Cargando occupations...")
+    with open(module_dir + "/data/ml-100k/bookfeatures.csv", "r", encoding="utf8") as f:
+        print("Cargando libros...")
         lines = f.read().splitlines()
-        occupations = []
+        libros = []
         for line in lines:
             if line == "":
                 continue
-            occupation = line.split("|")
-            occupations.append(Occupation(occupationName=occupation[0]))
-        Occupation.objects.bulk_create(occupations)
-        print("...occupations cargadas!")
+            libro = line.split(";")
+            book_id  = libro[0]
+            titulo = libro[1]
+            autor = libro[2]
+            genero = libro[3]
+            idioma = libro[4]
+            rating1 = libro[5]
+            rating2 = libro[6]
+            rating3 = libro[7]
+            rating4 = libro[8]
+            rating5 = libro[9]
+            print(libro)
+            libros.append(Libro(book_id=book_id, titulo=titulo, autor=autor, genero=genero, idioma=idioma, rating1=rating1, rating2=rating2, rating3=rating3, rating4=rating4, rating5=rating5))
+        Libro.objects.bulk_create(libros)
+        print("...libros cargados!")
 
-    with open(module_dir + "/data/ml-100k/u.genre", "r", encoding="utf8", errors="ignore") as f:
-        print("Cargando Genre...")
+    with open(module_dir + "/data/ml-100k/ratings.csv", "r", encoding="utf8", errors="ignore") as f:
+        print("Cargando puntuaciones...")
         lines = f.read().splitlines()
-        genres = []
-        for line in lines:
+        puntuaciones = []
+        for line in lines[1:]:
             if line == "":
                 continue
-            genre = line.split("|")
-            genres.append(Genre(id=int(genre[1].strip()),genreName=genre[0]))
-        Genre.objects.bulk_create(genres)
-        print("...Genre cargadas!")
-
-    with open(module_dir + "/data/ml-100k/u.item", "r", encoding="utf8", errors="ignore") as f:
-        print("Cargando movies...")
-        lines = f.read().splitlines()
-        movies = []
-        for line in lines:
-            if line == "":
-                continue
-            movie = line.split("|")
-
-            try:
-                date_rel = datetime.strptime(movie[2].strip(),'%d-%b-%Y')
-            except:
-                date_rel = datetime.strptime('01-Jan-1990','%d-%b-%Y')
-
-            try:
-                date_rel_video = datetime.strptime(movie[3].strip(),'%d-%b-%Y')
-            except:
-                date_rel_video = date_rel
-
-            movies.append(Film(id=int(movie[0].strip()) ,movieTitle=movie[1].strip(), releaseDate=date_rel, releaseVideoDate=date_rel_video, IMDbURL=movie[4].strip()))
-        Film.objects.bulk_create(movies)
-        print("...movies cargadas!")
-
-    with open(module_dir + "/data/ml-100k/u.user", "r", encoding="utf8", errors="ignore") as f:
-        print("Cargando Usuarios...")
-        lines = f.read().splitlines()
-        usuarios = []
-        dict={}
-        for line in lines:
-            usuario = line.split("|")
-            if len(usuario) != 5:
-                continue
-            id = int(usuario[0].strip())
-            age = usuario[1]
-            gender = usuario[2]
-            zipCode = usuario[4].strip()
-            usuarios.append(UserInformation(id=id, age=age, gender=gender, occupation=Occupation.objects.get(occupationName = usuario[3].strip()), zipCode=zipCode))
-            dict[id] = usuarios
-        UserInformation.objects.bulk_create(usuarios)
-        print("...Usuarios cargadas!")
-
-    with open(module_dir + "/data/ml-100k/u.data", "r", encoding="utf8", errors="ignore") as f:
-        print("Cargando Rating...")
-        lines = f.read().splitlines()
-        ratings = []
-        for line in lines:
-            if line == "":
-                continue
-            rating = line.split("\t")
-            ratings.append(Rating(user_id = int(rating[0].strip()), film_id = int(rating[1].strip()), rating=int(rating[2].strip()), rateDate= datetime.fromtimestamp(int(rating[3].strip())) ))
-        Rating.objects.bulk_create(ratings)
-        print("...Rating cargadas!")
+            puntuacion = line.split(";")
+            value = puntuacion[0]
+            usuario_id = puntuacion[1]
+            book_id = puntuacion[2]
+            puntuaciones.append(Puntuacion(value=value, usuario_id=usuario_id, book_id=book_id))
+        Puntuacion.objects.bulk_create(puntuaciones)
+        print("...puntuaciones cargadas!")
 
     return render(request, "principal/load_data_success.html")
 
